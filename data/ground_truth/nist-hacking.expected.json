@@ -3,6 +3,7 @@
   "expected_artifacts": [
     "disk image artifacts"
   ],
+  "expected_indicators": [],
   "ground_truth_source": "NIST CFReDS case material",
-  "notes": "Secondary validation template."
+  "notes": "Populate expected_indicators after evidence download; until then artifact_recall is reported as not_measured."
 }

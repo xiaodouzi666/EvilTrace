@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from eviltrace.findings.model import Finding
+from eviltrace.findings.provenance import provenance_complete
 from eviltrace.graph.model import EvidenceGraph
 
 from .contradiction_detector import detect_contradictions
@@ -41,19 +42,33 @@ class ValidationOutcome:
 
 
 class FindingValidator:
-    def validate(self, finding: Finding, graph: EvidenceGraph) -> ValidationOutcome:
+    def validate(self, finding: Finding, graph: EvidenceGraph, manifest: dict[str, Any] | None = None) -> ValidationOutcome:
         unsupported: list[str] = []
         if not finding.artifacts:
             unsupported.append("finding_has_no_artifacts")
         if finding.status in {"confirmed", "inferred", "candidate"} and not finding.audit_ids:
             unsupported.append("finding_has_no_audit_ids")
+        manifest_by_path: dict[str, str] = {}
+        if manifest:
+            manifest_by_path = {row.get("path", ""): row.get("sha256", "") for row in manifest.get("evidence", [])}
         for artifact in finding.artifacts:
+            artifact_label = artifact.get("artifact_id", "artifact")
             if not artifact.get("source_path"):
-                unsupported.append(f"{artifact.get('artifact_id', 'artifact')}:missing_source_path")
+                unsupported.append(f"{artifact_label}:missing_source_path")
             if not artifact.get("source_sha256"):
-                unsupported.append(f"{artifact.get('artifact_id', 'artifact')}:missing_source_sha256")
+                unsupported.append(f"{artifact_label}:missing_source_sha256")
             if not artifact.get("audit_id"):
-                unsupported.append(f"{artifact.get('artifact_id', 'artifact')}:missing_audit_id")
+                unsupported.append(f"{artifact_label}:missing_audit_id")
+            if not provenance_complete(artifact):
+                unsupported.append(f"{artifact_label}:incomplete_provenance")
+            # Rules 3 & 4: when a manifest is available, the cited evidence file must
+            # exist in the manifest and its recorded sha256 must match (no bogus citations).
+            if manifest_by_path:
+                source_path = artifact.get("source_path", "")
+                if source_path and source_path not in manifest_by_path:
+                    unsupported.append(f"{artifact_label}:source_path_not_in_manifest")
+                elif source_path and artifact.get("source_sha256") != manifest_by_path.get(source_path):
+                    unsupported.append(f"{artifact_label}:source_sha256_mismatch")
         unsupported_entities = hallucinated_entities(finding, graph)
         unsupported.extend([f"entity_not_in_graph:{entity}" for entity in unsupported_entities])
 

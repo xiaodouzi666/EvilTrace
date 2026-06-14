@@ -31,7 +31,43 @@ class CorrectionDecision:
         }
 
 
+# Maps a failed tool to an alternate tool (and the binary it needs) the engine can retry with.
+# Only mappings the orchestrator can actually re-plan are listed; unmapped tools yield
+# finalize_with_limitations. (pcap_http_objects -> pcap_follow_stream is wired in
+# orchestrator._handle_tool_failures and runs when tshark is available.)
+ALTERNATE_TOOLS: dict[str, dict[str, str | None]] = {
+    "pcap_http_objects": {"tool": "pcap_follow_stream", "binary": "tshark"},
+}
+
+
 class SelfCorrectionEngine:
+    def decide_tool_failure(
+        self,
+        *,
+        tool: str,
+        status: str,
+        reason: str,
+        max_iterations_reached: bool = False,
+    ) -> CorrectionDecision:
+        """When a tool fails (tool_missing/tool_error/timeout/needs_review), propose an
+        alternate tool if one is mapped, otherwise finalize the gap as a limitation."""
+        alternate = ALTERNATE_TOOLS.get(tool) or {}
+        alternate_tool = alternate.get("tool")
+        has_alternate = bool(alternate_tool)
+        return CorrectionDecision(
+            needs_replan=has_alternate and not max_iterations_reached,
+            action="alternate_tool" if has_alternate else "finalize_with_limitations",
+            finding_id="",
+            reason=f"Tool {tool} returned {status}: {reason}",
+            previous_status="n/a",
+            new_status="n/a",
+            next_action=(
+                f"Retry with alternate tool {alternate_tool}." if has_alternate
+                else "No alternate tool is available; record as a limitation."
+            ),
+            targeted_replan={"tool": alternate_tool, "binary": alternate.get("binary")} if has_alternate else None,
+        )
+
     def decide(self, finding: Finding, validation: ValidationOutcome, *, max_iterations_reached: bool = False) -> CorrectionDecision:
         unsupported = set(validation.unsupported_claims)
         if "finding_has_no_artifacts" in unsupported or "finding_has_no_audit_ids" in unsupported:

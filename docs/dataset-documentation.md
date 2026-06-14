@@ -23,10 +23,16 @@ SHA256: `041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28`
 
 Why selected: compact public PCAP with DNS lookups. It lets judges run EvilTrace in seconds and inspect provenance, audit IDs, evidence hashing, and self-correction without downloading large forensic images.
 
+Machine-comparable ground truth: `data/ground_truth/sample.expected.json` lists DNS query names independently enumerated from the public capture, so `eviltrace benchmark --expected` computes a real `artifact_recall` (1.0) against the bundled sample.
+
 Reproduce:
 
 ```bash
 uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+uv run eviltrace benchmark \
+  --findings artifacts/reports/sample.findings.json \
+  --expected data/ground_truth/sample.expected.json \
+  --manifest artifacts/reports/sample.case.json
 ```
 
 ## Case 2: Nitroba University Harassment

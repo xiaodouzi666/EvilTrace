@@ -4,13 +4,15 @@ from typing import Any
 
 from eviltrace.findings.model import Finding
 from eviltrace.findings.registry import FindingRegistry, FindingRegistryError
-from eviltrace.validators.finding_validator import FindingValidator
+from eviltrace.graph.correlate import add_network_artifact
 from eviltrace.graph.model import EvidenceGraph
+from eviltrace.validators.finding_validator import FindingValidator
 
 from .common import ToolContext, structured_tool_event
 
 
 _REGISTRIES: dict[str, FindingRegistry] = {}
+_GRAPHS: dict[str, EvidenceGraph] = {}
 
 
 def finding_propose(
@@ -23,6 +25,8 @@ def finding_propose(
     supporting_artifacts: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     registry = _REGISTRIES.setdefault(case_id, FindingRegistry(case_id))
+    graph = _GRAPHS.setdefault(case_id, EvidenceGraph())
+    artifacts = supporting_artifacts or []
     finding = Finding(
         finding_id=f"finding-{len(registry.all_for_validation()) + 1:04d}",
         case_id=case_id,
@@ -31,8 +35,13 @@ def finding_propose(
         category=category,
         status="candidate",
         confidence=0.55,
-        artifacts=supporting_artifacts or [],
+        artifacts=artifacts,
     )
+    # Populate the per-case graph so finding_validate's hallucination check has real
+    # entities to compare against instead of an empty graph.
+    for artifact in artifacts:
+        if artifact.get("artifact_id"):
+            add_network_artifact(graph, artifact)
     try:
         registry.add(finding)
         output = {"finding_id": finding.finding_id, "status": finding.status, "confidence": finding.confidence, "validation_required": True}
@@ -53,9 +62,9 @@ def finding_validate(ctx: ToolContext, *, case_id: str, finding_id: str, require
             output={"reason": "Finding is not registered"},
             status="needs_review",
         )
-    graph = EvidenceGraph()
+    graph = _GRAPHS.get(case_id, EvidenceGraph())
     finding = registry.findings[finding_id]
-    outcome = FindingValidator().validate(finding, graph)
+    outcome = FindingValidator().validate(finding, graph, ctx.manifest)
     return structured_tool_event(
         ctx,
         mcp_tool="finding_validate",
@@ -63,4 +72,3 @@ def finding_validate(ctx: ToolContext, *, case_id: str, finding_id: str, require
         output=outcome.to_dict(),
         status="success",
     )
-

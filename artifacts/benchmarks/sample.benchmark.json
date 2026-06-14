@@ -1,5 +1,7 @@
 {
-  "artifact_recall": "not_measured_without_known_answer_case",
+  "artifact_recall": 1.0,
+  "evidence_integrity": 1.0,
+  "evidence_integrity_status": "passed",
   "finding_precision": 1.0,
   "hallucination_rate": 0.0,
   "provenance_completeness": 1.0,

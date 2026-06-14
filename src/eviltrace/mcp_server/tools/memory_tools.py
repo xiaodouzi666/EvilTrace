@@ -37,5 +37,8 @@ def memory_volatility_plugin(ctx: ToolContext, *, memory_path: str, plugin: str,
     for key, value in (args or {}).items():
         command.extend([f"--{key}", str(value)])
     result = ctx.runner.run(command, mcp_tool="memory_volatility_plugin", input_data={"memory_path": memory_path, "plugin": plugin}, iteration=ctx.iteration)
-    return {"audit_id": result.audit_id, "status": result.status, "plugin": plugin, "rows": [], "raw_output_path": result.raw_output_path}
+    output = {"audit_id": result.audit_id, "status": result.status, "plugin": plugin, "rows": [], "raw_output_path": result.raw_output_path}
+    if result.status == "tool_missing":
+        output["fallback_reason"] = "volatility3 is not installed; memory analysis is unavailable on this host."
+    return output
 

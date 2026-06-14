@@ -35,6 +35,17 @@ check_file "docs/try-it-out.md" "Try-it-out instructions"
 check_file "docs/demo-video.md" "Demo video link"
 check_dir_nonempty "artifacts/logs" "Agent execution logs"
 check_dir_nonempty "artifacts/reports" "Sample reports"
+check_file "artifacts/reports/sample.findings.json" "Sample findings"
+check_file "artifacts/reports/sample.report.md" "Sample report"
+check_file "artifacts/logs/sample.agent.jsonl" "Sample agent log"
+check_file "artifacts/raw/provenance/sample.provenance.jsonl" "Sample provenance ledger"
+
+if command -v jq >/dev/null 2>&1; then
+  echo "PASS: jq available (required by guardrail hooks)"
+else
+  echo "FAIL: jq not found; guardrail hooks fail closed without it"
+  fail=1
+fi
 
 if ! grep -Ei "MIT License|Apache License" LICENSE >/dev/null; then
   echo "FAIL: LICENSE is not MIT or Apache-like"

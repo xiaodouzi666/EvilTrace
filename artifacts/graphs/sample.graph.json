@@ -8,14 +8,32 @@
     },
     {
       "properties": {},
-      "source": "cases/sample/dns.cap",
-      "target": "artifact-0001",
+      "source": "case-sample",
+      "target": "tool-audit-000001",
+      "type": "PRODUCED_BY"
+    },
+    {
+      "properties": {},
+      "source": "artifact-0001",
+      "target": "tool-audit-000002",
+      "type": "PRODUCED_BY"
+    },
+    {
+      "properties": {},
+      "source": "artifact-0001",
+      "target": "ev-0001",
       "type": "OBSERVED_IN"
     },
     {
       "properties": {},
-      "source": "cases/sample/dns.cap",
-      "target": "artifact-0002",
+      "source": "artifact-0002",
+      "target": "tool-audit-000003",
+      "type": "PRODUCED_BY"
+    },
+    {
+      "properties": {},
+      "source": "artifact-0002",
+      "target": "ev-0001",
       "type": "OBSERVED_IN"
     },
     {
@@ -151,164 +169,140 @@
     {
       "id": "artifact-0001",
       "properties": {
-        "artifact_id": "artifact-0001",
         "artifact_type": "pcap_summary",
         "audit_id": "audit-000002",
         "mcp_tool": "pcap_summary",
-        "offset_or_record": null,
         "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.json",
         "source_path": "cases/sample/dns.cap",
-        "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
-        "summary": {
-          "hosts": [],
-          "network_indicators": [],
-          "packet_count": 38,
-          "protocols": [
-            "DNS",
-            "IP",
-            "UDP"
-          ]
-        },
-        "tool": "python.pcap_builtin"
+        "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
       },
       "type": "Artifact"
     },
     {
+      "id": "tool-audit-000002",
+      "properties": {
+        "audit_id": "audit-000002",
+        "mcp_tool": "pcap_summary"
+      },
+      "type": "ToolExecution"
+    },
+    {
       "id": "artifact-0002",
       "properties": {
-        "artifact_id": "artifact-0002",
         "artifact_type": "dns_query",
         "audit_id": "audit-000003",
         "mcp_tool": "pcap_dns_queries",
-        "offset_or_record": null,
         "raw_output_path": "artifacts/raw/tool-outputs/audit-000003.json",
         "source_path": "cases/sample/dns.cap",
-        "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
-        "summary": {
-          "network_indicators": [
-            "google.com",
-            "google.com",
-            "google.com",
-            "104.9.192.66.in-addr.arpa",
-            "www.netbsd.org",
-            "www.netbsd.org",
-            "www.netbsd.org",
-            "www.google.com",
-            "www.l.google.com",
-            "www.example.com",
-            "www.example.notginh",
-            "www.isc.org",
-            "1.0.0.127.in-addr.arpa",
-            "isc.org",
-            "_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.utelsystems.local",
-            "_ldap._tcp.dc._msdcs.utelsystems.local",
-            "_ldap._tcp.05b5292b-34b8-4fb7-85a3-8beef5fd2069.domains._msdcs.utelsystems.local",
-            "GRIMM.utelsystems.local",
-            "GRIMM.utelsystems.local"
-          ],
-          "query_count": 19
-        },
-        "tool": "python.pcap_builtin"
+        "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
       },
       "type": "Artifact"
+    },
+    {
+      "id": "tool-audit-000003",
+      "properties": {
+        "audit_id": "audit-000003",
+        "mcp_tool": "pcap_dns_queries"
+      },
+      "type": "ToolExecution"
     },
     {
       "id": "indicator-google.com",
       "properties": {
         "indicator": "google.com"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-104.9.192.66.in-addr.arpa",
       "properties": {
         "indicator": "104.9.192.66.in-addr.arpa"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.netbsd.org",
       "properties": {
         "indicator": "www.netbsd.org"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.google.com",
       "properties": {
         "indicator": "www.google.com"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.l.google.com",
       "properties": {
         "indicator": "www.l.google.com"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.example.com",
       "properties": {
         "indicator": "www.example.com"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.example.notginh",
       "properties": {
         "indicator": "www.example.notginh"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-www.isc.org",
       "properties": {
         "indicator": "www.isc.org"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-1.0.0.127.in-addr.arpa",
       "properties": {
         "indicator": "1.0.0.127.in-addr.arpa"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-isc.org",
       "properties": {
         "indicator": "isc.org"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.utelsystems.local",
       "properties": {
         "indicator": "_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.utelsystems.local"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-_ldap._tcp.dc._msdcs.utelsystems.local",
       "properties": {
         "indicator": "_ldap._tcp.dc._msdcs.utelsystems.local"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-_ldap._tcp.05b5292b-34b8-4fb7-85a3-8beef5fd2069.domains._msdcs.utelsystems.local",
       "properties": {
         "indicator": "_ldap._tcp.05b5292b-34b8-4fb7-85a3-8beef5fd2069.domains._msdcs.utelsystems.local"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "indicator-GRIMM.utelsystems.local",
       "properties": {
         "indicator": "GRIMM.utelsystems.local"
       },
-      "type": "NetworkSession"
+      "type": "DNSQuery"
     },
     {
       "id": "finding-0001",

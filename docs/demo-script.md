@@ -1,57 +1,76 @@
-# Demo Script
+# Demo Script (< 5 minutes, live terminal + audio narration)
+
+Record a screencast of the actual terminal (not slides) against the bundled real capture
+`cases/sample/dns.cap`. Every command below works as-is in the repository.
 
 ## 0:00-0:20 Opening
 
 Show README and terminal.
 
-Narration: EvilTrace is a self-correcting DFIR agent for Protocol SIFT. Claude Code orchestrates the investigation, but evidence access goes through typed MCP tools with read-only guardrails and audit logging.
+Narration: EvilTrace is a self-correcting DFIR agent for Protocol SIFT. Reasoning is treated as
+untrusted; all evidence access crosses a trust boundary into a typed MCP server with read-only
+guardrails and audit logging. There is no shell-exec tool, so the agent cannot run destructive
+commands.
 
-## 0:20-0:50 Architecture
+## 0:20-0:50 Architecture and trust boundary
 
 ```bash
-cat docs/architecture.md
+sed -n '1,40p' docs/architecture.md
 ```
 
-Highlight Claude Code, typed MCP, SIFT tools, evidence graph, validation, self-correction, and output pipeline.
+Highlight the TRUST BOUNDARY edge between the untrusted reasoning zone and the trusted
+read-only evidence zone, and the architectural-vs-prompt guardrail split.
 
-## 0:50-1:30 Live Run
+## 0:50-1:40 Live run on real evidence
 
 ```bash
-uv run eviltrace run \
-  --case-id nitroba-demo \
-  --case-root ./cases/nitroba \
-  --profile network-first \
-  --max-iterations 5
+uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
 ```
 
-## 1:30-2:25 First-Pass Candidate
+Narration: The agent registers the case, hashes `dns.cap`, plans a network-first
+investigation, and parses the real PCAP (tshark if present, otherwise a read-only built-in
+parser recorded in provenance).
 
-Show `finding_proposed` and `finding_validated` events in the JSONL log.
-
-## 2:25-3:20 Self-Correction
+## 1:40-2:30 First-pass candidate and validation
 
 ```bash
-jq 'select(.event_type=="self_correction_triggered")' artifacts/logs/nitroba-demo.agent.jsonl
+jq 'select(.event_type=="finding_proposed" or .event_type=="finding_validated")' artifacts/logs/sample.agent.jsonl
 ```
 
-Narration: EvilTrace catches unsupported or overconfident language, rejects or downgrades it, and performs targeted re-planning when evidence exists.
+Narration: The first pass proposes an overconfident "exfiltration" candidate from limited
+metadata.
 
-## 3:20-4:00 Provenance Drill-Down
+## 2:30-3:20 Self-correction
 
 ```bash
-jq '.findings[0].artifacts' artifacts/reports/nitroba-demo.findings.json
+jq 'select(.event_type=="self_correction_triggered")' artifacts/logs/sample.agent.jsonl
 ```
 
-Show `audit_id`, `mcp_tool`, `source_path`, `source_sha256`, and `raw_output_path`.
+Narration: The validator rejects the exfiltration claim because no stream, HTTP object, or
+endpoint evidence supports it. It is moved to `rejected_findings` and never enters the final
+report.
 
-## 4:00-4:40 Final Report and Required Docs
+## 3:20-4:05 Provenance drill-down
 
 ```bash
-ls docs
+jq '.findings[0].artifacts' artifacts/reports/sample.findings.json
+head -n 3 artifacts/raw/provenance/sample.provenance.jsonl
+```
+
+Narration: Every final finding traces to an `audit_id`, an MCP tool, the source path and SHA256,
+and a provenance record with the command, exit code, and output hashes.
+
+## 4:05-4:40 Accuracy and required docs
+
+```bash
+uv run eviltrace benchmark --findings artifacts/reports/sample.findings.json --expected data/ground_truth/sample.expected.json --manifest artifacts/reports/sample.case.json
 bash scripts/validate_submission.sh
 ```
 
+Narration: Artifact recall against the ground-truth DNS set is 1.0, hallucination rate is 0,
+evidence integrity passed, and all eight required submission components are present.
+
 ## 4:40-5:00 Closing
 
-EvilTrace optimizes correctness over overclaiming. Unsupported claims are rejected or downgraded, and the trace is preserved for review.
-
+EvilTrace optimizes correctness over overclaiming: unsupported claims are rejected, the full
+trace is preserved, and the report is decision-support for a human investigator.

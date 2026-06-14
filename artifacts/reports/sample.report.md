@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-EvilTrace run `run-20260614-223730` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
+EvilTrace run `run-20260614-235544` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
 
 ## Final Findings
 
@@ -54,8 +54,14 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "raw_output_path": "artifacts/raw/tool-outputs/audit-000005.json",
     "status": "success"
   },
+  "iterations": 1,
+  "limitations": [
+    "pcap_http_objects: HTTP object export requires tshark."
+  ],
   "metrics": {
-    "artifact_recall": "not_measured_without_known_answer_case",
+    "artifact_recall": 1.0,
+    "evidence_integrity": 1.0,
+    "evidence_integrity_status": "passed",
     "finding_precision": 1.0,
     "hallucination_rate": 0.0,
     "provenance_completeness": 1.0,
@@ -63,7 +69,19 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "self_correction_success": 1.0,
     "unsupported_rejected_claims": 1
   },
-  "run_id": "run-20260614-223730",
+  "run_id": "run-20260614-235544",
+  "stop_reason": "no_further_correction_needed",
+  "token_usage": {
+    "cost_usd": 0.0,
+    "llm_calls": 0,
+    "mode": "deterministic-reference-orchestrator",
+    "note": "The deterministic reference orchestrator performs no LLM inference, so token usage is zero by construction; usage is captured when the same typed MCP tools are driven by Claude Code headless.",
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    }
+  },
   "validation_results": [
     {
       "confidence": 0.1,

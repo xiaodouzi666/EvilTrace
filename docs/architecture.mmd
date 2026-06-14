@@ -1,23 +1,31 @@
 flowchart LR
     User[Judge / Analyst] --> CLI[EvilTrace CLI]
-    CLI --> Claude[Claude Code Orchestrator]
-    Claude --> Planner[Investigation Planner]
-    Claude --> Loop[Self-Correction Loop]
-    Planner --> MCPClient[MCP Client]
-    MCPClient --> MCP[EvilTrace Typed MCP Server]
 
-    subgraph Guardrails[Architectural Guardrails]
-        MCP --> Allowlist[Tool Allowlist]
-        MCP --> ReadOnly[Read-only Evidence Access]
-        MCP --> Timeout[Timeout + Output Limits]
-        MCP --> Audit[Mandatory Audit Logging]
+    subgraph Untrusted[Untrusted reasoning zone]
+        CLI --> Claude[Claude Code Orchestrator / Deterministic Reference Orchestrator]
+        Claude --> Planner[Investigation Planner]
+        Claude --> Loop[Self-Correction Loop max-iterations]
+        Planner --> MCPClient[MCP Client]
+        PromptGuard[Prompt Guardrails advisory]
+        PromptGuard -.-> Claude
     end
 
-    MCP --> SIFT[SIFT / DFIR Tools]
-    SIFT --> Disk[Disk Artifacts]
-    SIFT --> Memory[Memory Artifacts]
-    SIFT --> Network[Network Artifacts]
-    SIFT --> Logs[Event Logs]
+    MCPClient ==>|TRUST BOUNDARY: typed tools only, no execute_shell| MCP[EvilTrace Typed MCP Server]
+
+    subgraph Trusted[Trusted read-only evidence zone]
+        subgraph Guardrails[Architectural Guardrails enforced in code]
+            MCP --> Allowlist[Command Allowlist + Denylist]
+            MCP --> ReadOnly[Read-only Evidence Paths]
+            MCP --> Timeout[Timeout + Output Limits]
+            MCP --> Audit[Mandatory Audit Log + Provenance Ledger]
+        end
+        MCP --> SIFT[SIFT / DFIR Tools read-only]
+        SIFT --> Disk[Disk Artifacts]
+        SIFT --> Memory[Memory Artifacts]
+        SIFT --> Network[Network Artifacts]
+        SIFT --> Logs[Event Logs]
+        Evidence[(cases/ read-only evidence)] --> SIFT
+    end
 
     Disk --> Normalize[Artifact Normalizer]
     Memory --> Normalize
@@ -25,13 +33,11 @@ flowchart LR
     Logs --> Normalize
     Normalize --> Graph[Evidence Graph]
     Graph --> Findings[Finding Registry]
-    Findings --> Validator[Validation Engine]
+    Findings --> Validator[Validation Engine: provenance, hash, contradiction, hallucination]
     Validator --> Loop
-    Loop -->|Contradiction found| Planner
+    Loop -->|Contradiction / gap| Planner
     Loop -->|Validated| Report[Report Generator]
-    Report --> MD[Markdown Report]
+    Report --> MD[report.md]
     Report --> JSON[findings.json]
-    Report --> LogsOut[agent.jsonl]
+    Report --> LogsOut[agent.jsonl + provenance.jsonl]
     Report --> Accuracy[Accuracy Report]
-    PromptGuard[Prompt Guardrails] -.-> Claude
-

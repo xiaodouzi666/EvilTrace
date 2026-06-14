@@ -7,6 +7,7 @@ from typing import Any
 
 from eviltrace.evidence.paths import WorkspacePaths
 from eviltrace.logging.audit_logger import AuditLogger
+from eviltrace.logging.run_logger import RunLogger
 from eviltrace.mcp_server.command_runner import CommandRunner
 from eviltrace.mcp_server.guardrails import GuardrailConfig
 from eviltrace.mcp_server.tool_registry import TOOL_NAMES
@@ -18,19 +19,31 @@ from eviltrace.mcp_server.tools.finding_tools import finding_propose, finding_va
 from eviltrace.mcp_server.tools.graph_tools import graph_export
 from eviltrace.mcp_server.tools.memory_tools import memory_volatility_plugin
 from eviltrace.mcp_server.tools.network_tools import pcap_dns_queries, pcap_follow_stream, pcap_http_objects, pcap_summary
+from eviltrace.mcp_server.tools.validation_tools import validate_manifest_integrity
 from eviltrace.mcp_server.tools.windows_tools import windows_evtx_query, windows_prefetch_summary, windows_run_keys, windows_usb_history
 
 
+_CONTEXTS: dict[str, ToolContext] = {}
+
+
 def build_context(case_id: str = "mcp-session") -> ToolContext:
+    """Return a per-case ToolContext, cached for the life of the server process so
+    audit/event counters and the provenance ledger persist across tool calls
+    (one stdio session may invoke many tools for the same case)."""
+    if case_id in _CONTEXTS:
+        return _CONTEXTS[case_id]
     workspace = os.environ.get("EVILTRACE_WORKSPACE", ".")
     evidence_root = os.environ.get("EVILTRACE_EVIDENCE_ROOT", "./cases")
     artifact_root = os.environ.get("EVILTRACE_ARTIFACT_ROOT", "./artifacts")
     paths = WorkspacePaths.from_workspace(workspace, evidence_root, artifact_root)
     paths.ensure()
     logger = AuditLogger(paths.logs_dir / f"{case_id}.mcp.jsonl", run_id="mcp-session", case_id=case_id)
+    provenance = RunLogger(paths, case_id)
     guardrails = GuardrailConfig(paths)
-    runner = CommandRunner(guardrails, logger)
-    return ToolContext(paths, logger, guardrails, runner)
+    runner = CommandRunner(guardrails, logger, provenance)
+    ctx = ToolContext(paths, logger, guardrails, runner, provenance=provenance)
+    _CONTEXTS[case_id] = ctx
+    return ctx
 
 
 def _run_fallback() -> None:
@@ -121,6 +134,10 @@ def main() -> None:
     @mcp.tool()
     def graph_export_tool(case_id: str, graph: dict[str, Any], output_path: str) -> dict[str, Any]:
         return graph_export(build_context(case_id), graph=graph, output_path=output_path)
+
+    @mcp.tool()
+    def validate_manifest_integrity_tool(case_id: str, manifest: dict[str, Any]) -> dict[str, Any]:
+        return validate_manifest_integrity(build_context(case_id), manifest=manifest)
 
     mcp.run()
 

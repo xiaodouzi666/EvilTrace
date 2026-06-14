@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 
@@ -15,6 +16,10 @@ def utc_now() -> str:
 def stable_json_hash(value: Any) -> str:
     payload = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+_EVENT_RE = re.compile(r"event-(\d+)")
+_AUDIT_RE = re.compile(r"audit-(\d+)")
 
 
 @dataclass
@@ -30,6 +35,33 @@ class AuditLogger:
 
     def __post_init__(self) -> None:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        self._seed_counters_from_log()
+
+    def _seed_counters_from_log(self) -> None:
+        """Resume event/audit IDs from an existing log so repeated constructions on the
+        same log file (e.g. the stdio MCP server building a context per call) never
+        collide on event_id/audit_id or overwrite raw-output files."""
+        if not self.log_path.exists():
+            return
+        max_event = 0
+        max_audit = 0
+        try:
+            for line in self.log_path.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                event = json.loads(line)
+                if isinstance(event.get("event_id"), str):
+                    match = _EVENT_RE.fullmatch(event["event_id"]) or _EVENT_RE.search(event["event_id"])
+                    if match:
+                        max_event = max(max_event, int(match.group(1)))
+                if isinstance(event.get("audit_id"), str):
+                    match = _AUDIT_RE.fullmatch(event["audit_id"]) or _AUDIT_RE.search(event["audit_id"])
+                    if match:
+                        max_audit = max(max_audit, int(match.group(1)))
+        except (OSError, json.JSONDecodeError):
+            return
+        self._event_counter = max(self._event_counter, max_event)
+        self._audit_counter = max(self._audit_counter, max_audit)
 
     def next_event_id(self) -> str:
         self._event_counter += 1

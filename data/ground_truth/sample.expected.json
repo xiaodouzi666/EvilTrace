@@ -1,0 +1,12 @@
+{
+  "case_id": "sample",
+  "ground_truth_source": "Wireshark SampleCaptures dns.cap, independently enumerated DNS query names",
+  "expected_indicators": [
+    "google.com",
+    "www.google.com",
+    "www.l.google.com",
+    "www.netbsd.org",
+    "www.example.com"
+  ],
+  "notes": "These DNS query names are present in the public dns.cap capture and are used as a machine-comparable known-answer set so `eviltrace benchmark --expected` computes a real artifact_recall against the bundled sample."
+}

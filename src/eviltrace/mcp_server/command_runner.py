@@ -8,9 +8,14 @@ import time
 from typing import Any
 
 from eviltrace.evidence.hashing import sha256_text
-from eviltrace.logging.audit_logger import AuditLogger
+from eviltrace.findings.provenance import build_provenance_record
+from eviltrace.logging.audit_logger import AuditLogger, utc_now
+from eviltrace.logging.run_logger import RunLogger
 
 from .guardrails import GuardrailConfig, GuardrailError
+
+
+_SOURCE_PATH_KEYS = ("pcap_path", "image_path", "evtx_path", "memory_path", "system_hive", "software_hive", "path")
 
 
 @dataclass
@@ -28,9 +33,10 @@ class CommandResult:
 
 
 class CommandRunner:
-    def __init__(self, guardrails: GuardrailConfig, logger: AuditLogger):
+    def __init__(self, guardrails: GuardrailConfig, logger: AuditLogger, provenance: RunLogger | None = None):
         self.guardrails = guardrails
         self.logger = logger
+        self.provenance = provenance
 
     def run(
         self,
@@ -162,4 +168,23 @@ class CommandRunner:
             status=result.status,
             mcp_tool=mcp_tool,
         )
+        if self.provenance is not None:
+            source_path = next((str(input_data[key]) for key in _SOURCE_PATH_KEYS if input_data.get(key)), "")
+            self.provenance.write_provenance(
+                build_provenance_record(
+                    audit_id=result.audit_id,
+                    case_id=self.logger.case_id,
+                    mcp_tool=mcp_tool,
+                    tool_layer="subprocess",
+                    timestamp_utc=utc_now(),
+                    stdout_sha256=result.stdout_sha256,
+                    stderr_sha256=result.stderr_sha256,
+                    exit_code=result.exit_code,
+                    duration_ms=result.duration_ms,
+                    source_path=source_path,
+                    underlying_tool=Path(result.command[0]).name if result.command else "",
+                    command_redacted=" ".join(result.command),
+                    raw_output_path=result.raw_output_path,
+                )
+            )
 

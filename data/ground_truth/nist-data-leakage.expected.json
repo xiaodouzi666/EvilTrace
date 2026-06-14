@@ -4,6 +4,7 @@
     "Windows disk artifacts",
     "removable media artifacts"
   ],
+  "expected_indicators": [],
   "ground_truth_source": "NIST CFReDS answer material",
-  "notes": "Use NIST answers for final benchmark scoring after evidence download."
+  "notes": "Populate expected_indicators from the NIST answers after evidence download; until then artifact_recall is reported as not_measured."
 }

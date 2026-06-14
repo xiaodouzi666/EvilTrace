@@ -16,9 +16,20 @@ class EvidenceGraph:
         self.nodes[node_id] = current
 
     def add_edge(self, source: str, target: str, edge_type: str, **properties: Any) -> None:
-        edge = {"source": source, "target": target, "type": edge_type, "properties": properties}
-        if edge not in self.edges:
-            self.edges.append(edge)
+        for edge in self.edges:
+            if edge["source"] == source and edge["target"] == target and edge["type"] == edge_type:
+                edge.setdefault("properties", {}).update(properties)
+                return
+        self.edges.append({"source": source, "target": target, "type": edge_type, "properties": properties})
+
+    def nodes_of_type(self, node_type: str) -> list[dict[str, Any]]:
+        return [node for node in self.nodes.values() if node.get("type") == node_type]
+
+    def evidence_node_for_path(self, source_path: str) -> str | None:
+        for node in self.nodes.values():
+            if node.get("type") == "EvidenceFile" and node.get("properties", {}).get("path") == source_path:
+                return node["id"]
+        return None
 
     def has_entity(self, value: str) -> bool:
         if not value:

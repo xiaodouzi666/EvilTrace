@@ -14,7 +14,10 @@ def windows_evtx_query(ctx: ToolContext, *, evtx_path: str, event_ids: list[int]
             status="needs_review",
         )
     result = ctx.runner.run(["evtx_dump", str(resolved)], mcp_tool="windows_evtx_query", input_data={"evtx_path": evtx_path}, iteration=ctx.iteration)
-    return {"audit_id": result.audit_id, "status": result.status, "events": [], "raw_output_path": result.raw_output_path}
+    output = {"audit_id": result.audit_id, "status": result.status, "events": [], "raw_output_path": result.raw_output_path}
+    if result.status == "tool_missing":
+        output["fallback_reason"] = "evtx_dump is not installed; EVTX parsing is unavailable on this host."
+    return output
 
 
 def windows_prefetch_summary(ctx: ToolContext, *, prefetch_dir: str) -> dict:
@@ -32,7 +35,11 @@ def windows_prefetch_summary(ctx: ToolContext, *, prefetch_dir: str) -> dict:
         ctx,
         mcp_tool="windows_prefetch_summary",
         input_data={"prefetch_dir": prefetch_dir},
-        output={"executions": executions},
+        output={
+            "executions": executions,
+            "depth": "filename_enumeration_only",
+            "note": "Run counts and last-run timestamps are not parsed from the prefetch binary format; only filenames are enumerated. Downstream findings must not assert execution counts/timestamps from this artifact.",
+        },
         status="success",
     )
 

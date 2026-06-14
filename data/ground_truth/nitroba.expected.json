@@ -4,6 +4,7 @@
     "pcap conversations",
     "DNS/HTTP indicators when present"
   ],
+  "expected_indicators": [],
   "ground_truth_source": "published Nitroba scenario materials",
-  "notes": "Populate exact expected indicators after local case evidence is supplied."
+  "notes": "Populate expected_indicators (machine-comparable DNS/HTTP/host indicators) after the local Nitroba PCAP is supplied; until then artifact_recall is reported as not_measured."
 }

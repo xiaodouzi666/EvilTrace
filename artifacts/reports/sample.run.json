@@ -1,0 +1,37 @@
+{
+  "case_id": "sample",
+  "evidence_integrity": "passed",
+  "final_findings": 1,
+  "iterations": 1,
+  "limitations": [
+    "pcap_http_objects: HTTP object export requires tshark."
+  ],
+  "max_iterations": 2,
+  "metrics": {
+    "artifact_recall": 1.0,
+    "evidence_integrity": 1.0,
+    "evidence_integrity_status": "passed",
+    "finding_precision": 1.0,
+    "hallucination_rate": 0.0,
+    "provenance_completeness": 1.0,
+    "rejected_findings": 1,
+    "self_correction_success": 1.0,
+    "unsupported_rejected_claims": 1
+  },
+  "profile": "network-first",
+  "rejected_findings": 1,
+  "run_id": "run-20260614-235544",
+  "self_correction_events": 1,
+  "stop_reason": "no_further_correction_needed",
+  "token_usage": {
+    "cost_usd": 0.0,
+    "llm_calls": 0,
+    "mode": "deterministic-reference-orchestrator",
+    "note": "The deterministic reference orchestrator performs no LLM inference, so token usage is zero by construction; usage is captured when the same typed MCP tools are driven by Claude Code headless.",
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    }
+  }
+}

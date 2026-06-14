@@ -42,6 +42,10 @@ class WorkspacePaths:
     def tool_outputs_dir(self) -> Path:
         return self.raw_dir / "tool-outputs"
 
+    @property
+    def provenance_dir(self) -> Path:
+        return self.raw_dir / "provenance"
+
     def ensure(self) -> None:
         for path in [
             self.evidence_root,
@@ -49,6 +53,7 @@ class WorkspacePaths:
             self.reports_dir,
             self.graphs_dir,
             self.tool_outputs_dir,
+            self.provenance_dir,
             self.raw_dir / "http-objects",
             self.artifact_root / "benchmarks",
         ]:

@@ -21,6 +21,8 @@ class RunState:
     corrections: list[dict[str, Any]] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
     targeted_replan: dict[str, Any] | None = None
+    tried_alternate: dict[str, bool] = field(default_factory=dict)
+    stop_reason: str = "completed"
     graph: EvidenceGraph = field(default_factory=EvidenceGraph)
     registry: FindingRegistry | None = None
 

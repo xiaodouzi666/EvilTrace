@@ -18,5 +18,6 @@ TOOL_NAMES = [
     "graph_export",
     "finding_propose",
     "finding_validate",
+    "validate_manifest_integrity",
 ]
 
