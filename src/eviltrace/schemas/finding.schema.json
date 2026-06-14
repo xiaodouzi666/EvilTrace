@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvilTrace Finding",
+  "type": "object",
+  "required": ["finding_id", "case_id", "title", "category", "status", "confidence", "summary", "artifacts", "validation"],
+  "properties": {
+    "finding_id": {"type": "string", "pattern": "^finding-[0-9]{4}$"},
+    "case_id": {"type": "string"},
+    "title": {"type": "string"},
+    "category": {"type": "string"},
+    "status": {"type": "string", "enum": ["confirmed", "inferred", "rejected", "needs_review", "candidate"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "summary": {"type": "string"},
+    "time_range": {"type": "object"},
+    "entities": {"type": "object"},
+    "artifacts": {"type": "array", "items": {"$ref": "artifact.schema.json"}},
+    "audit_ids": {"type": "array", "items": {"type": "string"}},
+    "validation": {"type": "object"},
+    "reasoning_note": {"type": "string"},
+    "limitations": {"type": "string"}
+  }
+}
+

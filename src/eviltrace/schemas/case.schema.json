@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvilTrace Case Manifest",
+  "type": "object",
+  "required": ["case_id", "case_root", "case_type", "evidence_count", "evidence"],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "case_root": {"type": "string", "minLength": 1},
+    "case_type": {"type": "string"},
+    "description": {"type": "string"},
+    "registered_at": {"type": "string"},
+    "evidence_count": {"type": "integer", "minimum": 0},
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "evidence.schema.json"}
+    }
+  }
+}
+

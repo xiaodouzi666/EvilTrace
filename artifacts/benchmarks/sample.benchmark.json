@@ -1,0 +1,9 @@
+{
+  "artifact_recall": "not_measured_without_known_answer_case",
+  "finding_precision": 1.0,
+  "hallucination_rate": 0.0,
+  "provenance_completeness": 1.0,
+  "rejected_findings": 1,
+  "self_correction_success": 1.0,
+  "unsupported_rejected_claims": 1
+}

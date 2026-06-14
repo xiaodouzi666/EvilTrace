@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvilTrace Run Output",
+  "type": "object",
+  "required": ["case_id", "run_id", "log_path", "report_path", "findings_path", "graph_path", "validation_path"],
+  "properties": {
+    "case_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "log_path": {"type": "string"},
+    "report_path": {"type": "string"},
+    "findings_path": {"type": "string"},
+    "graph_path": {"type": "string"},
+    "validation_path": {"type": "string"},
+    "final_findings": {"type": "integer", "minimum": 0},
+    "rejected_findings": {"type": "integer", "minimum": 0}
+  }
+}
+

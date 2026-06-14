@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvilTrace Provenance",
+  "type": "object",
+  "required": ["provenance_id", "audit_id", "case_id", "source_path", "source_sha256", "tool_layer", "mcp_tool", "timestamp_utc", "stdout_sha256", "stderr_sha256", "exit_code", "duration_ms"],
+  "properties": {
+    "provenance_id": {"type": "string"},
+    "audit_id": {"type": "string"},
+    "case_id": {"type": "string"},
+    "evidence_id": {"type": "string"},
+    "source_path": {"type": "string"},
+    "source_sha256": {"type": "string"},
+    "tool_layer": {"type": "string"},
+    "mcp_tool": {"type": "string"},
+    "underlying_tool": {"type": "string"},
+    "command_template": {"type": "string"},
+    "command_redacted": {"type": "string"},
+    "timestamp_utc": {"type": "string"},
+    "stdout_sha256": {"type": "string"},
+    "stderr_sha256": {"type": "string"},
+    "raw_output_path": {"type": "string"},
+    "exit_code": {"type": "integer"},
+    "duration_ms": {"type": "integer", "minimum": 0}
+  }
+}
+

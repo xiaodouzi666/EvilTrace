@@ -1,0 +1,16 @@
+{
+  "case_id": "sample",
+  "case_root": "cases/sample",
+  "case_type": "network",
+  "description": "Bundled Wireshark SampleCaptures dns.cap used for seconds-scale demo and provenance validation.",
+  "evidence": [
+    {
+      "detected_type": "pcap",
+      "evidence_id": "ev-0001",
+      "path": "cases/sample/dns.cap",
+      "read_only": true,
+      "sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
+      "size_bytes": 4338
+    }
+  ]
+}

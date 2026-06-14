@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvilTrace Evidence File",
+  "type": "object",
+  "required": ["evidence_id", "path", "sha256", "size_bytes", "detected_type", "read_only"],
+  "properties": {
+    "evidence_id": {"type": "string", "pattern": "^ev-[0-9]{4}$"},
+    "path": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "size_bytes": {"type": "integer", "minimum": 0},
+    "detected_type": {"type": "string"},
+    "read_only": {"type": "boolean"}
+  }
+}
+

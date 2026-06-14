@@ -1,0 +1,22 @@
+TOOL_NAMES = [
+    "case_register",
+    "case_manifest",
+    "evidence_hash",
+    "evidence_verify_integrity",
+    "pcap_summary",
+    "pcap_dns_queries",
+    "pcap_http_objects",
+    "pcap_follow_stream",
+    "disk_image_info",
+    "disk_timeline",
+    "disk_search_files",
+    "windows_evtx_query",
+    "windows_prefetch_summary",
+    "windows_usb_history",
+    "windows_run_keys",
+    "memory_volatility_plugin",
+    "graph_export",
+    "finding_propose",
+    "finding_validate",
+]
+

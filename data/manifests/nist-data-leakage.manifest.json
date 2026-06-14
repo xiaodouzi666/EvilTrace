@@ -1,0 +1,7 @@
+{
+  "case_id": "nist-data-leakage",
+  "case_root": "cases/nist-data-leakage",
+  "case_type": "disk",
+  "description": "NIST CFReDS Data Leakage Case; large evidence is stored locally by the evaluator.",
+  "evidence": []
+}

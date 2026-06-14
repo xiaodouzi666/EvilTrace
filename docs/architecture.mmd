@@ -1,0 +1,37 @@
+flowchart LR
+    User[Judge / Analyst] --> CLI[EvilTrace CLI]
+    CLI --> Claude[Claude Code Orchestrator]
+    Claude --> Planner[Investigation Planner]
+    Claude --> Loop[Self-Correction Loop]
+    Planner --> MCPClient[MCP Client]
+    MCPClient --> MCP[EvilTrace Typed MCP Server]
+
+    subgraph Guardrails[Architectural Guardrails]
+        MCP --> Allowlist[Tool Allowlist]
+        MCP --> ReadOnly[Read-only Evidence Access]
+        MCP --> Timeout[Timeout + Output Limits]
+        MCP --> Audit[Mandatory Audit Logging]
+    end
+
+    MCP --> SIFT[SIFT / DFIR Tools]
+    SIFT --> Disk[Disk Artifacts]
+    SIFT --> Memory[Memory Artifacts]
+    SIFT --> Network[Network Artifacts]
+    SIFT --> Logs[Event Logs]
+
+    Disk --> Normalize[Artifact Normalizer]
+    Memory --> Normalize
+    Network --> Normalize
+    Logs --> Normalize
+    Normalize --> Graph[Evidence Graph]
+    Graph --> Findings[Finding Registry]
+    Findings --> Validator[Validation Engine]
+    Validator --> Loop
+    Loop -->|Contradiction found| Planner
+    Loop -->|Validated| Report[Report Generator]
+    Report --> MD[Markdown Report]
+    Report --> JSON[findings.json]
+    Report --> LogsOut[agent.jsonl]
+    Report --> Accuracy[Accuracy Report]
+    PromptGuard[Prompt Guardrails] -.-> Claude
+

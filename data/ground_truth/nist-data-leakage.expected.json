@@ -1,0 +1,9 @@
+{
+  "case_id": "nist-data-leakage",
+  "expected_artifacts": [
+    "Windows disk artifacts",
+    "removable media artifacts"
+  ],
+  "ground_truth_source": "NIST CFReDS answer material",
+  "notes": "Use NIST answers for final benchmark scoring after evidence download."
+}

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eviltrace"
+version = "0.1.0"
+description = "Self-correcting, evidence-grounded DFIR agent for Protocol SIFT."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "EvilTrace Contributors" }
+]
+dependencies = [
+  "typer>=0.12",
+  "mcp>=1.0",
+  "networkx>=3.2",
+  "jsonschema>=4.22"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0"
+]
+
+[project.scripts]
+eviltrace = "eviltrace.cli:main"
+eviltrace-mcp = "eviltrace.mcp_server.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eviltrace"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+

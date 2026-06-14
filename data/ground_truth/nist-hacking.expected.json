@@ -1,0 +1,8 @@
+{
+  "case_id": "nist-hacking",
+  "expected_artifacts": [
+    "disk image artifacts"
+  ],
+  "ground_truth_source": "NIST CFReDS case material",
+  "notes": "Secondary validation template."
+}

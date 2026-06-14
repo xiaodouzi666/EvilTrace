@@ -1,0 +1,7 @@
+{
+  "case_id": "nist-hacking",
+  "case_root": "cases/nist-hacking",
+  "case_type": "disk",
+  "description": "NIST CFReDS Hacking Case; large evidence is stored locally by the evaluator.",
+  "evidence": []
+}

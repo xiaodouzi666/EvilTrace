@@ -1,0 +1,7 @@
+{
+  "case_id": "nitroba-demo",
+  "case_root": "cases/nitroba",
+  "case_type": "network",
+  "description": "Nitroba University harassment validation case; place local PCAP evidence under cases/nitroba.",
+  "evidence": []
+}

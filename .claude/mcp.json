@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "eviltrace": {
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "-m",
+        "eviltrace.mcp_server.server"
+      ],
+      "env": {
+        "EVILTRACE_WORKSPACE": ".",
+        "EVILTRACE_EVIDENCE_ROOT": "./cases",
+        "EVILTRACE_ARTIFACT_ROOT": "./artifacts"
+      }
+    }
+  }
+}
+
