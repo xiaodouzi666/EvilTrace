@@ -1,6 +1,0 @@
-{
-  "objects": [],
-  "reason": "HTTP object export requires tshark.",
-  "source_path": "cases/sample/dns.cap",
-  "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
-}

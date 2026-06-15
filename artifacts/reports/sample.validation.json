@@ -36,9 +36,7 @@
     "status": "success"
   },
   "iterations": 2,
-  "limitations": [
-    "pcap_http_objects: HTTP object export requires tshark."
-  ],
+  "limitations": [],
   "metrics": {
     "artifact_recall": 1.0,
     "evidence_integrity": 1.0,
@@ -50,7 +48,7 @@
     "self_correction_success": 1.0,
     "unsupported_rejected_claims": 1
   },
-  "run_id": "run-20260615-222658",
+  "run_id": "run-20260615-232626",
   "stop_reason": "validation_passed",
   "token_usage": {
     "cost_usd": 0.0,

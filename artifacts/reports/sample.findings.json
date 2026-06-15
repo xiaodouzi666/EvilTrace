@@ -9,20 +9,19 @@
           "audit_id": "audit-000002",
           "mcp_tool": "pcap_summary",
           "offset_or_record": null,
-          "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.json",
+          "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.txt",
           "source_path": "cases/sample/dns.cap",
           "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
           "summary": {
             "hosts": [],
             "network_indicators": [],
-            "packet_count": 38,
+            "packet_count": null,
             "protocols": [
               "DNS",
-              "IP",
               "UDP"
             ]
           },
-          "tool": "python.pcap_builtin"
+          "tool": "tshark"
         },
         {
           "artifact_id": "artifact-0002",
@@ -30,7 +29,7 @@
           "audit_id": "audit-000004",
           "mcp_tool": "pcap_dns_queries",
           "offset_or_record": null,
-          "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.json",
+          "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.tsv",
           "source_path": "cases/sample/dns.cap",
           "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
           "summary": {
@@ -57,7 +56,7 @@
             ],
             "query_count": 19
           },
-          "tool": "python.pcap_builtin"
+          "tool": "tshark"
         }
       ],
       "audit_ids": [
@@ -120,20 +119,19 @@
           "audit_id": "audit-000002",
           "mcp_tool": "pcap_summary",
           "offset_or_record": null,
-          "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.json",
+          "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.txt",
           "source_path": "cases/sample/dns.cap",
           "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
           "summary": {
             "hosts": [],
             "network_indicators": [],
-            "packet_count": 38,
+            "packet_count": null,
             "protocols": [
               "DNS",
-              "IP",
               "UDP"
             ]
           },
-          "tool": "python.pcap_builtin"
+          "tool": "tshark"
         }
       ],
       "audit_ids": [

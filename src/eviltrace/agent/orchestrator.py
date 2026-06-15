@@ -434,6 +434,10 @@ class EvilTraceOrchestrator:
         artifact_type = artifact_type_by_tool.get(tool_name)
         if not artifact_type:
             return None
+        # An empty HTTP export (e.g. a DNS-only capture) is a real tool execution recorded in the
+        # audit + provenance log, but there is nothing to normalize into a finding-support artifact.
+        if tool_name == "pcap_http_objects" and not result.get("objects"):
+            return None
         summary: dict[str, Any] = {}
         if tool_name == "pcap_summary":
             summary = {"protocols": result.get("protocols", []), "packet_count": result.get("packet_count"), "hosts": [], "network_indicators": []}

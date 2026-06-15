@@ -172,7 +172,7 @@
         "artifact_type": "pcap_summary",
         "audit_id": "audit-000002",
         "mcp_tool": "pcap_summary",
-        "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.json",
+        "raw_output_path": "artifacts/raw/tool-outputs/audit-000002.txt",
         "source_path": "cases/sample/dns.cap",
         "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
       },
@@ -210,7 +210,7 @@
         "artifact_type": "dns_query",
         "audit_id": "audit-000004",
         "mcp_tool": "pcap_dns_queries",
-        "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.json",
+        "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.tsv",
         "source_path": "cases/sample/dns.cap",
         "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
       },

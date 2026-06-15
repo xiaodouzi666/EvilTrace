@@ -16,6 +16,22 @@ def _load_sample_metrics() -> dict[str, Any]:
     return {}
 
 
+def _sample_pcap_engine() -> str:
+    """Report which PCAP engine the latest sample run actually used, read from the provenance ledger."""
+    ledger = Path("artifacts/raw/provenance/sample.provenance.jsonl")
+    if ledger.is_file():
+        try:
+            for line in ledger.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                if record.get("mcp_tool") == "pcap_summary":
+                    return "real tshark (Wireshark)" if record.get("underlying_tool") == "tshark" else "the read-only built-in PCAP/DNS parser"
+        except (OSError, json.JSONDecodeError):
+            return "the read-only built-in PCAP/DNS parser"
+    return "the read-only built-in PCAP/DNS parser"
+
+
 def write_accuracy_report(path: str | Path, metrics: dict[str, Any] | None = None) -> Path:
     metrics = metrics or _load_sample_metrics() or {
         "finding_precision": 1.0,
@@ -27,6 +43,7 @@ def write_accuracy_report(path: str | Path, metrics: dict[str, Any] | None = Non
         "rejected_findings": 1,
         "unsupported_rejected_claims": 1,
     }
+    engine = _sample_pcap_engine()
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
@@ -39,6 +56,7 @@ def write_accuracy_report(path: str | Path, metrics: dict[str, Any] | None = Non
                 "- Project: EvilTrace",
                 "- Run date: generated during repository validation",
                 "- MCP server version: 0.1.0",
+                f"- PCAP engine used for the sample run: {engine}",
                 "",
                 "## 2. Validation Methodology",
                 "",
@@ -47,6 +65,10 @@ def write_accuracy_report(path: str | Path, metrics: dict[str, Any] | None = Non
                 "Wireshark DNS sample (`cases/sample/dns.cap`) is used for seconds-scale validation with a "
                 "machine-comparable ground-truth file (`data/ground_truth/sample.expected.json`); NIST and Nitroba "
                 "manifests are included for larger local validation runs.",
+                "",
+                f"The sample run in this report used {engine}. When tshark is absent, EvilTrace falls back to a "
+                "read-only built-in PCAP/DNS parser (graceful degradation) and records the fallback in the provenance "
+                "ledger, so the result is reproducible with or without Wireshark installed.",
                 "",
                 "EvilTrace has two execution modes that share the same typed MCP tools, validators, and audit log: "
                 "(1) the deterministic reference orchestrator (`eviltrace run`), used here for reproducible scoring, "

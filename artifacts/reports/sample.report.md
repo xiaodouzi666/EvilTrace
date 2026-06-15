@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-EvilTrace run `run-20260615-222658` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
+EvilTrace run `run-20260615-232626` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
 
 ## Final Findings
 
@@ -68,9 +68,7 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "status": "success"
   },
   "iterations": 2,
-  "limitations": [
-    "pcap_http_objects: HTTP object export requires tshark."
-  ],
+  "limitations": [],
   "metrics": {
     "artifact_recall": 1.0,
     "evidence_integrity": 1.0,
@@ -82,7 +80,7 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "self_correction_success": 1.0,
     "unsupported_rejected_claims": 1
   },
-  "run_id": "run-20260615-222658",
+  "run_id": "run-20260615-232626",
   "stop_reason": "validation_passed",
   "token_usage": {
     "cost_usd": 0.0,
@@ -155,4 +153,4 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
 
 ## Limitations
 
-- pcap_http_objects: HTTP object export requires tshark.
+- No additional limitations were recorded.

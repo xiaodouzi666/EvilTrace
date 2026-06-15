@@ -5,10 +5,13 @@
 - Project: EvilTrace
 - Run date: generated during repository validation
 - MCP server version: 0.1.0
+- PCAP engine used for the sample run: real tshark (Wireshark)
 
 ## 2. Validation Methodology
 
 EvilTrace evaluates findings against structured provenance, evidence-integrity hashes, contradiction checks, and machine-comparable known-answer datasets when supplied. The bundled Wireshark DNS sample (`cases/sample/dns.cap`) is used for seconds-scale validation with a machine-comparable ground-truth file (`data/ground_truth/sample.expected.json`); NIST and Nitroba manifests are included for larger local validation runs.
+
+The sample run in this report used real tshark (Wireshark). When tshark is absent, EvilTrace falls back to a read-only built-in PCAP/DNS parser (graceful degradation) and records the fallback in the provenance ledger, so the result is reproducible with or without Wireshark installed.
 
 EvilTrace has two execution modes that share the same typed MCP tools, validators, and audit log: (1) the deterministic reference orchestrator (`eviltrace run`), used here for reproducible scoring, which performs rule-based planning/validation with no LLM inference in the loop; and (2) Claude Code headless driving the same MCP server. Token usage is therefore zero for the deterministic path and is captured per turn in the Claude Code mode.
 

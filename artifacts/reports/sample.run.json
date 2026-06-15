@@ -3,9 +3,7 @@
   "evidence_integrity": "passed",
   "final_findings": 1,
   "iterations": 2,
-  "limitations": [
-    "pcap_http_objects: HTTP object export requires tshark."
-  ],
+  "limitations": [],
   "max_iterations": 3,
   "metrics": {
     "artifact_recall": 1.0,
@@ -20,7 +18,7 @@
   },
   "profile": "network-first",
   "rejected_findings": 1,
-  "run_id": "run-20260615-222658",
+  "run_id": "run-20260615-232626",
   "self_correction_events": 2,
   "stop_reason": "validation_passed",
   "token_usage": {
