@@ -10,6 +10,19 @@
       "previous_status": "confirmed",
       "reason": "Exfiltration language requires stream, object, or endpoint evidence; none is present.",
       "targeted_replan": null
+    },
+    {
+      "action": "downgrade_to_inferred",
+      "finding_id": "finding-0002",
+      "needs_replan": true,
+      "new_status": "inferred",
+      "next_action": "Re-plan a targeted DNS extraction to corroborate the summary-level claim.",
+      "previous_status": "confirmed",
+      "reason": "Confirmed status requires two artifacts or one strong artifact.",
+      "targeted_replan": {
+        "pcap_path": "cases/sample/dns.cap",
+        "tool": "pcap_dns_queries"
+      }
     }
   ],
   "evidence_integrity": {
@@ -22,7 +35,7 @@
     "raw_output_path": "artifacts/raw/tool-outputs/audit-000005.json",
     "status": "success"
   },
-  "iterations": 1,
+  "iterations": 2,
   "limitations": [
     "pcap_http_objects: HTTP object export requires tshark."
   ],
@@ -37,8 +50,8 @@
     "self_correction_success": 1.0,
     "unsupported_rejected_claims": 1
   },
-  "run_id": "run-20260614-235544",
-  "stop_reason": "no_further_correction_needed",
+  "run_id": "run-20260615-222658",
+  "stop_reason": "validation_passed",
   "token_usage": {
     "cost_usd": 0.0,
     "llm_calls": 0,
@@ -64,6 +77,21 @@
       "status": "confirmed",
       "unsupported_claims": [
         "overclaim:exfiltration_without_direct_support"
+      ]
+    },
+    {
+      "confidence": 0.59,
+      "contradicted_by": [],
+      "corroborated_by": [
+        "artifact-0001"
+      ],
+      "finding_id": "finding-0002",
+      "hallucination_check": "passed",
+      "reason": "Confirmed status requires two artifacts or one strong artifact.",
+      "recommended_status": "inferred",
+      "status": "confirmed",
+      "unsupported_claims": [
+        "single_source_overclaim"
       ]
     },
     {

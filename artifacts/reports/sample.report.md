@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-EvilTrace run `run-20260614-235544` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
+EvilTrace run `run-20260615-222658` processed 1 evidence file(s). The final report contains 1 confirmed/inferred/needs-review finding(s). 1 unsupported candidate finding(s) were rejected or excluded from final findings.
 
 ## Final Findings
 
@@ -10,8 +10,8 @@ EvilTrace run `run-20260614-235544` processed 1 evidence file(s). The final repo
 
 - Status: `confirmed`
 - Confidence: `0.86`
-- Audit IDs: `audit-000002, audit-000003`
-- Summary: EvilTrace parsed DNS metadata from the PCAP and observed 19 DNS query artifact(s).
+- Audit IDs: `audit-000002, audit-000004`
+- Summary: After re-planning, EvilTrace extracted 19 DNS query artifact(s), corroborating the first-pass summary; the finding is upgraded from inferred status on the strength of two corroborating artifacts.
 - Limitations: DNS activity alone is network context, not proof of compromise.
 
 | Artifact | Type | MCP Tool | Source |
@@ -42,6 +42,19 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
       "previous_status": "confirmed",
       "reason": "Exfiltration language requires stream, object, or endpoint evidence; none is present.",
       "targeted_replan": null
+    },
+    {
+      "action": "downgrade_to_inferred",
+      "finding_id": "finding-0002",
+      "needs_replan": true,
+      "new_status": "inferred",
+      "next_action": "Re-plan a targeted DNS extraction to corroborate the summary-level claim.",
+      "previous_status": "confirmed",
+      "reason": "Confirmed status requires two artifacts or one strong artifact.",
+      "targeted_replan": {
+        "pcap_path": "cases/sample/dns.cap",
+        "tool": "pcap_dns_queries"
+      }
     }
   ],
   "evidence_integrity": {
@@ -54,7 +67,7 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "raw_output_path": "artifacts/raw/tool-outputs/audit-000005.json",
     "status": "success"
   },
-  "iterations": 1,
+  "iterations": 2,
   "limitations": [
     "pcap_http_objects: HTTP object export requires tshark."
   ],
@@ -69,8 +82,8 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
     "self_correction_success": 1.0,
     "unsupported_rejected_claims": 1
   },
-  "run_id": "run-20260614-235544",
-  "stop_reason": "no_further_correction_needed",
+  "run_id": "run-20260615-222658",
+  "stop_reason": "validation_passed",
   "token_usage": {
     "cost_usd": 0.0,
     "llm_calls": 0,
@@ -96,6 +109,21 @@ Rejected and downgraded candidates are retained in structured outputs but exclud
       "status": "confirmed",
       "unsupported_claims": [
         "overclaim:exfiltration_without_direct_support"
+      ]
+    },
+    {
+      "confidence": 0.59,
+      "contradicted_by": [],
+      "corroborated_by": [
+        "artifact-0001"
+      ],
+      "finding_id": "finding-0002",
+      "hallucination_check": "passed",
+      "reason": "Confirmed status requires two artifacts or one strong artifact.",
+      "recommended_status": "inferred",
+      "status": "confirmed",
+      "unsupported_claims": [
+        "single_source_overclaim"
       ]
     },
     {

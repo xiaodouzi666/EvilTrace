@@ -55,7 +55,7 @@ PCAP/DNS parser and records the fallback in provenance.
 
 ```bash
 uv sync
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 uv run eviltrace submission-check
 ```
 
@@ -63,7 +63,7 @@ Or with pip:
 
 ```bash
 python3 -m venv .venv && . .venv/bin/activate && pip install -e .[dev]
-eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 ```
 
 The repository bundles a small public Wireshark `dns.cap` under `cases/sample/` plus generated
@@ -74,7 +74,7 @@ confirming unsupported findings.
 ## 5. Demo
 
 ```bash
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 jq 'select(.event_type=="self_correction_triggered")' artifacts/logs/sample.agent.jsonl
 jq '.findings[0].artifacts' artifacts/reports/sample.findings.json
 uv run eviltrace benchmark --findings artifacts/reports/sample.findings.json \
@@ -98,6 +98,14 @@ graph entities, contradictions, and evidence integrity. Unsupported claims are r
 overconfident findings are downgraded to `inferred`; contradictions and evidence gaps trigger a
 targeted re-plan or an alternate tool; tool failures degrade gracefully. The loop is hard-capped
 by `--max-iterations`. Rejected findings never enter the final report.
+
+The bundled sample demonstrates this end to end across two iterations: iteration 1 (protocol
+summary only) proposes an exfiltration claim that is **rejected** and a single-source DNS claim
+that is **downgraded** `confirmed → inferred`; the downgrade triggers a **targeted re-plan** that
+extracts the actual DNS queries in iteration 2, and the same finding is **upgraded** back to
+`confirmed` on two corroborating artifacts (`stop_reason: validation_passed` at iteration 2 of a
+3-iteration cap). This is the "demonstrable improvement between first and final iteration" the
+rules describe, with the full trace preserved in `artifacts/logs/sample.agent.jsonl`.
 
 ## 8. Evidence Integrity and Guardrails
 

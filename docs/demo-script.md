@@ -24,31 +24,36 @@ read-only evidence zone, and the architectural-vs-prompt guardrail split.
 ## 0:50-1:40 Live run on real evidence
 
 ```bash
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 ```
 
 Narration: The agent registers the case, hashes `dns.cap`, plans a network-first
 investigation, and parses the real PCAP (tshark if present, otherwise a read-only built-in
 parser recorded in provenance).
 
-## 1:40-2:30 First-pass candidate and validation
+## 1:40-2:30 First-pass candidates (iteration 1)
 
 ```bash
-jq 'select(.event_type=="finding_proposed" or .event_type=="finding_validated")' artifacts/logs/sample.agent.jsonl
+jq 'select(.iteration==1 and (.event_type=="finding_proposed" or .event_type=="finding_validated"))' artifacts/logs/sample.agent.jsonl
 ```
 
-Narration: The first pass proposes an overconfident "exfiltration" candidate from limited
-metadata.
+Narration: Iteration 1 runs only a protocol summary. From it the agent proposes two
+over-confident candidates: an "exfiltration" claim, and a DNS-activity claim asserted as
+`confirmed` from a single summary artifact.
 
-## 2:30-3:20 Self-correction
+## 2:30-3:30 Self-correction across iterations
 
 ```bash
-jq 'select(.event_type=="self_correction_triggered")' artifacts/logs/sample.agent.jsonl
+jq 'select(.event_type=="self_correction_triggered") | {iteration, action: .output_summary.action, finding: .input.finding_id}' artifacts/logs/sample.agent.jsonl
+jq 'select(.event_type=="plan_created") | {iteration, steps: [.output_summary.tool_steps[].tool]}' artifacts/logs/sample.agent.jsonl
 ```
 
-Narration: The validator rejects the exfiltration claim because no stream, HTTP object, or
-endpoint evidence supports it. It is moved to `rejected_findings` and never enters the final
-report.
+Narration: The validator **rejects** the exfiltration claim (no stream/object/endpoint
+evidence), and **downgrades** the single-source DNS claim from `confirmed` to `inferred`. That
+downgrade triggers a **targeted re-plan**: iteration 2 extracts the actual DNS queries. With two
+corroborating artifacts the same finding (`finding-0002`) is **upgraded back to `confirmed`** —
+demonstrable improvement between the first and final iteration on the same evidence, with full
+traces preserved. The rejected claim never enters the final report.
 
 ## 3:20-4:05 Provenance drill-down
 

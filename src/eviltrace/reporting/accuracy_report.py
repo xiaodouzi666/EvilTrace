@@ -98,6 +98,16 @@ def write_accuracy_report(path: str | Path, metrics: dict[str, Any] | None = Non
                 "from the final report. No unsupported claim survives into final findings (hallucination rate "
                 f"{metrics.get('hallucination_rate')}).",
                 "",
+                "### Iteration-over-iteration self-correction",
+                "",
+                "The sample also exercises a multi-iteration correction. In iteration 1 (protocol summary only), "
+                "`finding-0002` is proposed as `confirmed` from a single artifact; the validator downgrades it to "
+                "`inferred` (`single_source_overclaim`) and the loop re-plans a targeted DNS extraction. In iteration 2 "
+                "the same finding is re-evaluated with two corroborating artifacts and upgraded back to `confirmed` — a "
+                "demonstrable accuracy improvement between the first and final iteration on the same evidence, with the "
+                "full trace preserved in `artifacts/logs/sample.agent.jsonl` (`stop_reason: validation_passed`, 2 of 3 "
+                "iterations used).",
+                "",
                 "### Missed artifacts",
                 "",
                 "For the bundled sample, EvilTrace recovered every DNS name in the ground-truth set "

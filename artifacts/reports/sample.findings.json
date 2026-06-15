@@ -27,10 +27,10 @@
         {
           "artifact_id": "artifact-0002",
           "artifact_type": "dns_query",
-          "audit_id": "audit-000003",
+          "audit_id": "audit-000004",
           "mcp_tool": "pcap_dns_queries",
           "offset_or_record": null,
-          "raw_output_path": "artifacts/raw/tool-outputs/audit-000003.json",
+          "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.json",
           "source_path": "cases/sample/dns.cap",
           "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28",
           "summary": {
@@ -62,7 +62,7 @@
       ],
       "audit_ids": [
         "audit-000002",
-        "audit-000003"
+        "audit-000004"
       ],
       "case_id": "sample",
       "category": "network",
@@ -87,9 +87,9 @@
       },
       "finding_id": "finding-0002",
       "limitations": "DNS activity alone is network context, not proof of compromise.",
-      "reasoning_note": "The finding is limited to observed DNS activity and does not assert compromise or exfiltration.",
+      "reasoning_note": "Two corroborating artifacts (protocol summary + DNS queries) from the same evidence support confirmed status.",
       "status": "confirmed",
-      "summary": "EvilTrace parsed DNS metadata from the PCAP and observed 19 DNS query artifact(s).",
+      "summary": "After re-planning, EvilTrace extracted 19 DNS query artifact(s), corroborating the first-pass summary; the finding is upgraded from inferred status on the strength of two corroborating artifacts.",
       "time_range": {
         "end": null,
         "start": null

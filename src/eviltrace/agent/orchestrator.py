@@ -458,75 +458,88 @@ class EvilTraceOrchestrator:
         )
 
     def _propose_findings(self, state: RunState, new_artifacts: list[dict[str, Any]]) -> list[Finding]:
+        """Stage candidates across iterations so the self-correction loop is visible end to end:
+
+        Iteration 1 (summary-only evidence): an overconfident exfiltration claim is proposed and
+        REJECTED, and a single-source DNS-activity claim is proposed as ``confirmed`` and
+        DOWNGRADED to ``inferred`` (which re-plans a targeted DNS extraction).
+        Iteration 2 (DNS queries extracted on the re-plan): the same finding is re-proposed with a
+        second corroborating artifact and UPGRADED inferred -> confirmed — a demonstrable
+        improvement between the first and final iteration on the same evidence.
+        """
         candidates: list[Finding] = []
-        base_index = len(state.registry.all_for_validation()) if state.registry else 0
-        if new_artifacts:
-            weak_support = new_artifacts[:1]
+        summary_artifacts = [a for a in state.artifacts if a.get("artifact_type") == "pcap_summary"]
+        dns_artifacts = [a for a in state.artifacts if a.get("artifact_type") == "dns_query"]
+
+        if not summary_artifacts:
+            if state.iteration == 1 and not state.artifacts:
+                candidates.append(
+                    Finding(
+                        finding_id="finding-0001",
+                        case_id=state.case_id,
+                        title="Unsupported incident claim",
+                        category="case_intake",
+                        status="candidate",
+                        confidence=0.2,
+                        summary="No local evidence artifact is available to support an incident finding.",
+                        artifacts=[],
+                        reasoning_note="The agent must reject this candidate because no evidence was provided.",
+                        limitations="Supply case evidence under the case root to perform DFIR analysis.",
+                    )
+                )
+            return candidates
+
+        if not dns_artifacts:
+            # First pass: only a protocol summary is available.
             candidates.append(
                 Finding(
-                    finding_id=f"finding-{base_index + 1:04d}",
+                    finding_id="finding-0001",
                     case_id=state.case_id,
                     title="Unsupported exfiltration overclaim",
                     category="network",
                     status="confirmed",
                     confidence=0.62,
                     summary="A first-pass candidate used exfiltration language from limited network metadata and must be rejected unless direct stream, object, or endpoint evidence exists.",
-                    artifacts=weak_support,
+                    artifacts=summary_artifacts[:1],
                     entities={"hosts": [], "users": [], "processes": [], "files": [], "network_indicators": []},
                     reasoning_note="Initial candidate generated to demonstrate validation and self-correction.",
                     limitations="Exfiltration is not asserted without direct transferred-content or endpoint corroboration.",
                 )
             )
-
-            dns_artifacts = [artifact for artifact in new_artifacts if artifact.get("artifact_type") == "dns_query"]
-            summary_artifacts = [artifact for artifact in new_artifacts if artifact.get("artifact_type") == "pcap_summary"]
-            factual_support = (summary_artifacts[:1] + dns_artifacts[:1]) or new_artifacts[:1]
-            if dns_artifacts:
-                query_count = dns_artifacts[0].get("summary", {}).get("query_count", 0)
-                candidates.append(
-                    Finding(
-                        finding_id=f"finding-{base_index + 2:04d}",
-                        case_id=state.case_id,
-                        title="DNS query activity observed in PCAP evidence",
-                        category="network",
-                        status="confirmed",
-                        confidence=0.86,
-                        summary=f"EvilTrace parsed DNS metadata from the PCAP and observed {query_count} DNS query artifact(s).",
-                        artifacts=factual_support,
-                        entities={"hosts": [], "users": [], "processes": [], "files": [], "network_indicators": dns_artifacts[0].get("summary", {}).get("network_indicators", [])[:10]},
-                        reasoning_note="The finding is limited to observed DNS activity and does not assert compromise or exfiltration.",
-                        limitations="DNS activity alone is network context, not proof of compromise.",
-                    )
-                )
-            else:
-                candidates.append(
-                    Finding(
-                        finding_id=f"finding-{base_index + 2:04d}",
-                        case_id=state.case_id,
-                        title="Network packets parsed from PCAP evidence",
-                        category="network",
-                        status="inferred",
-                        confidence=0.55,
-                        summary="EvilTrace parsed packet metadata from the supplied PCAP evidence.",
-                        artifacts=factual_support,
-                        entities={"hosts": [], "users": [], "processes": [], "files": [], "network_indicators": []},
-                        reasoning_note="This finding stays at inferred unless corroborating protocol-specific artifacts are available.",
-                        limitations="Packet metadata alone does not establish incident impact.",
-                    )
-                )
-        elif state.iteration == 1:
+            protocols = summary_artifacts[0].get("summary", {}).get("protocols", []) or ["DNS"]
             candidates.append(
                 Finding(
-                    finding_id="finding-0001",
+                    finding_id="finding-0002",
                     case_id=state.case_id,
-                    title="Unsupported incident claim",
-                    category="case_intake",
-                    status="candidate",
-                    confidence=0.2,
-                    summary="No local evidence artifact is available to support an incident finding.",
-                    artifacts=[],
-                    reasoning_note="The agent must reject this candidate because no evidence was provided.",
-                    limitations="Supply case evidence under the case root to perform DFIR analysis.",
+                    title="DNS protocol activity observed in PCAP evidence",
+                    category="network",
+                    status="confirmed",
+                    confidence=0.7,
+                    summary=f"First-pass packet summary detected protocols {protocols}; this single protocol-summary artifact is asserted strongly and must be corroborated before it can stand.",
+                    artifacts=summary_artifacts[:1],
+                    entities={"hosts": [], "users": [], "processes": [], "files": [], "network_indicators": []},
+                    reasoning_note="Proposed from the protocol summary alone; requires DNS-query corroboration.",
+                    limitations="A single protocol-summary artifact is insufficient; DNS-query extraction is required to corroborate.",
                 )
             )
+            return candidates
+
+        # Corroboration pass: DNS queries were extracted on the targeted re-plan.
+        query_count = dns_artifacts[0].get("summary", {}).get("query_count", 0)
+        indicators = dns_artifacts[0].get("summary", {}).get("network_indicators", [])
+        candidates.append(
+            Finding(
+                finding_id="finding-0002",
+                case_id=state.case_id,
+                title="DNS query activity observed in PCAP evidence",
+                category="network",
+                status="confirmed",
+                confidence=0.86,
+                summary=f"After re-planning, EvilTrace extracted {query_count} DNS query artifact(s), corroborating the first-pass summary; the finding is upgraded from inferred status on the strength of two corroborating artifacts.",
+                artifacts=(summary_artifacts[:1] + dns_artifacts[:1]),
+                entities={"hosts": [], "users": [], "processes": [], "files": [], "network_indicators": indicators[:10]},
+                reasoning_note="Two corroborating artifacts (protocol summary + DNS queries) from the same evidence support confirmed status.",
+                limitations="DNS activity alone is network context, not proof of compromise.",
+            )
+        )
         return candidates

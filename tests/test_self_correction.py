@@ -44,7 +44,8 @@ def test_downgrades_single_source_claim_and_targets_stream() -> None:
     outcome = FindingValidator().validate(finding, EvidenceGraph())
     decision = SelfCorrectionEngine().decide(finding, outcome)
     assert decision.action == "downgrade_to_inferred"
-    assert decision.targeted_replan["tool"] == "pcap_follow_stream"
+    # a summary-only claim is corroborated by extracting the actual DNS queries
+    assert decision.targeted_replan["tool"] == "pcap_dns_queries"
 
 
 def test_needs_review_targets_replan_then_finalizes_at_budget() -> None:

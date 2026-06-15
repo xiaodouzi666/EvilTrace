@@ -24,23 +24,29 @@ class InvestigationPlanner:
 
         if state.targeted_replan:
             target = state.targeted_replan
-            if target.get("tool") == "pcap_follow_stream" and target.get("pcap_path"):
+            if target.get("tool") == "pcap_dns_queries" and target.get("pcap_path"):
+                steps.append(
+                    {"tool": "pcap_dns_queries", "input": {"pcap_path": target["pcap_path"], "domain_filter": None}}
+                )
+            elif target.get("tool") == "pcap_follow_stream" and target.get("pcap_path"):
                 steps.append(
                     {
                         "tool": "pcap_follow_stream",
                         "input": {"pcap_path": target["pcap_path"], "stream_id": int(target.get("stream_id", 0)), "protocol": "tcp"},
                     }
                 )
-            return InvestigationPlan(plan_id, state.iteration, state.profile, steps, "Targeted re-plan from validation feedback.")
+            return InvestigationPlan(plan_id, state.iteration, state.profile, steps, "Targeted re-plan to corroborate a downgraded finding.")
 
         pcaps = [row for row in evidence if row.get("detected_type") == "pcap"]
         disks = [row for row in evidence if row.get("detected_type") in {"ewf_disk_image", "raw_image"}]
         if state.profile == "network-first" and pcaps:
             pcap_path = pcaps[0]["path"]
+            # First pass is intentionally summary-only: a single protocol-summary artifact is not
+            # enough to confirm, so the validation engine downgrades the candidate and the loop
+            # re-plans a targeted DNS extraction on the next iteration (see self_correction).
             steps.extend(
                 [
                     {"tool": "pcap_summary", "input": {"pcap_path": pcap_path, "limit": 200}},
-                    {"tool": "pcap_dns_queries", "input": {"pcap_path": pcap_path, "domain_filter": None}},
                     {"tool": "pcap_http_objects", "input": {"pcap_path": pcap_path, "export_dir": "artifacts/raw/http-objects"}},
                 ]
             )

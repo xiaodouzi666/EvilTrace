@@ -79,6 +79,24 @@ def test_end_to_end_provenance_chain(workspace_with_pcap: Path) -> None:
             assert (artifact["artifact_id"], tool_node) in produced_by
 
 
+def test_multi_iteration_self_correction_upgrades_finding(workspace_with_pcap: Path) -> None:
+    result = EvilTraceOrchestrator(workspace=workspace_with_pcap).run(
+        case_id="sample", case_root="cases/sample", profile="network-first", max_iterations=3
+    )
+    assert result["iterations"] == 2, "the loop should converge in two iterations, not the 3-iteration cap"
+    assert result["stop_reason"] == "validation_passed"
+    log = [json.loads(l) for l in (workspace_with_pcap / result["log_path"]).read_text(encoding="utf-8").splitlines() if l.strip()]
+    actions = [e["output_summary"].get("action") for e in log if e["event_type"] == "self_correction_triggered"]
+    assert "downgrade_to_inferred" in actions and "reject_finding" in actions
+    # iteration 2 is the targeted DNS re-plan
+    plans = [e["output_summary"]["tool_steps"] for e in log if e["event_type"] == "plan_created"]
+    assert any(any(s["tool"] == "pcap_dns_queries" for s in p) for p in plans[1:])
+    # the downgraded finding is upgraded to confirmed by the final iteration
+    findings = json.loads((workspace_with_pcap / result["findings_path"]).read_text(encoding="utf-8"))
+    f2 = [x for x in findings["findings"] if x["finding_id"] == "finding-0002"]
+    assert f2 and f2[0]["status"] == "confirmed" and len(f2[0]["artifacts"]) == 2
+
+
 def test_run_emits_provenance_ledger(workspace_with_pcap: Path) -> None:
     result = EvilTraceOrchestrator(workspace=workspace_with_pcap).run(
         case_id="sample", case_root="cases/sample", max_iterations=2

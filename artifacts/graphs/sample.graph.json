@@ -26,8 +26,20 @@
     },
     {
       "properties": {},
+      "source": "artifact-0001",
+      "target": "finding-0001",
+      "type": "SUPPORTS_FINDING"
+    },
+    {
+      "properties": {},
+      "source": "artifact-0001",
+      "target": "finding-0002",
+      "type": "SUPPORTS_FINDING"
+    },
+    {
+      "properties": {},
       "source": "artifact-0002",
-      "target": "tool-audit-000003",
+      "target": "tool-audit-000004",
       "type": "PRODUCED_BY"
     },
     {
@@ -122,18 +134,6 @@
     },
     {
       "properties": {},
-      "source": "artifact-0001",
-      "target": "finding-0001",
-      "type": "SUPPORTS_FINDING"
-    },
-    {
-      "properties": {},
-      "source": "artifact-0001",
-      "target": "finding-0002",
-      "type": "SUPPORTS_FINDING"
-    },
-    {
-      "properties": {},
       "source": "artifact-0002",
       "target": "finding-0002",
       "type": "SUPPORTS_FINDING"
@@ -187,21 +187,39 @@
       "type": "ToolExecution"
     },
     {
+      "id": "finding-0001",
+      "properties": {
+        "confidence": 0.1,
+        "status": "rejected",
+        "title": "Unsupported exfiltration overclaim"
+      },
+      "type": "Finding"
+    },
+    {
+      "id": "finding-0002",
+      "properties": {
+        "confidence": 0.86,
+        "status": "confirmed",
+        "title": "DNS query activity observed in PCAP evidence"
+      },
+      "type": "Finding"
+    },
+    {
       "id": "artifact-0002",
       "properties": {
         "artifact_type": "dns_query",
-        "audit_id": "audit-000003",
+        "audit_id": "audit-000004",
         "mcp_tool": "pcap_dns_queries",
-        "raw_output_path": "artifacts/raw/tool-outputs/audit-000003.json",
+        "raw_output_path": "artifacts/raw/tool-outputs/audit-000004.json",
         "source_path": "cases/sample/dns.cap",
         "source_sha256": "041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28"
       },
       "type": "Artifact"
     },
     {
-      "id": "tool-audit-000003",
+      "id": "tool-audit-000004",
       "properties": {
-        "audit_id": "audit-000003",
+        "audit_id": "audit-000004",
         "mcp_tool": "pcap_dns_queries"
       },
       "type": "ToolExecution"
@@ -303,24 +321,6 @@
         "indicator": "GRIMM.utelsystems.local"
       },
       "type": "DNSQuery"
-    },
-    {
-      "id": "finding-0001",
-      "properties": {
-        "confidence": 0.1,
-        "status": "rejected",
-        "title": "Unsupported exfiltration overclaim"
-      },
-      "type": "Finding"
-    },
-    {
-      "id": "finding-0002",
-      "properties": {
-        "confidence": 0.86,
-        "status": "confirmed",
-        "title": "DNS query activity observed in PCAP evidence"
-      },
-      "type": "Finding"
     }
   ]
 }

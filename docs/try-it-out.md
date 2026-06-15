@@ -15,7 +15,7 @@ quick start below reproduces real findings in seconds with no large downloads.
 
 ```bash
 uv sync
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 uv run eviltrace submission-check
 ```
 
@@ -25,7 +25,7 @@ uv run eviltrace submission-check
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -e .[dev]
-eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 2
+eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 eviltrace submission-check
 ```
 

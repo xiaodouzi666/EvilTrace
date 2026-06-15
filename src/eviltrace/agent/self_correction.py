@@ -101,10 +101,17 @@ class SelfCorrectionEngine:
                 next_action="Run targeted corroboration if iteration budget remains.",
             )
         if validation.recommended_status == "inferred" and finding.status == "confirmed":
-            pcap_artifact = next((artifact for artifact in finding.artifacts if artifact.get("artifact_type") in {"pcap_summary", "dns_query"}), None)
+            summary_artifact = next((a for a in finding.artifacts if a.get("artifact_type") == "pcap_summary"), None)
+            dns_artifact = next((a for a in finding.artifacts if a.get("artifact_type") == "dns_query"), None)
             target = None
-            if pcap_artifact:
-                target = {"tool": "pcap_follow_stream", "pcap_path": pcap_artifact.get("source_path"), "stream_id": 0}
+            next_action = "Finalize as inferred with limitations."
+            if summary_artifact:
+                # Corroborate a summary-only claim by extracting the actual DNS queries.
+                target = {"tool": "pcap_dns_queries", "pcap_path": summary_artifact.get("source_path")}
+                next_action = "Re-plan a targeted DNS extraction to corroborate the summary-level claim."
+            elif dns_artifact:
+                target = {"tool": "pcap_follow_stream", "pcap_path": dns_artifact.get("source_path"), "stream_id": 0}
+                next_action = "Run stream reconstruction to seek corroborating evidence."
             return CorrectionDecision(
                 needs_replan=bool(target) and not max_iterations_reached,
                 action="downgrade_to_inferred",
@@ -112,7 +119,7 @@ class SelfCorrectionEngine:
                 reason=validation.reason,
                 previous_status=finding.status,
                 new_status="inferred",
-                next_action="Run stream reconstruction to seek corroborating evidence." if target else "Finalize as inferred with limitations.",
+                next_action=next_action,
                 targeted_replan=target,
             )
         return CorrectionDecision(
