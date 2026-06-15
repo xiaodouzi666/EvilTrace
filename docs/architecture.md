@@ -51,6 +51,17 @@ flowchart LR
     Report --> Accuracy[Accuracy Report]
 ```
 
+## Architectural Pattern
+
+Of the four FIND EVIL architectural approaches, EvilTrace implements **Approach 2 — Custom MCP
+Server** (a purpose-built, typed MCP server; the approach the hackathon calls the "most sound
+architecture in the evaluation"). Forensic capability is exposed as typed function wrappers
+(`pcap_summary()`, `pcap_dns_queries()`, `disk_timeline()`, `windows_evtx_query()`,
+`memory_volatility_plugin()`, …) rather than an `execute_shell_cmd` tool. The agent **physically
+cannot run destructive commands because the server does not expose them.** The deterministic
+reference orchestrator and Claude Code headless are two drivers in front of this same server, so
+the constraint holds regardless of which driver is used.
+
 ## Trust Boundary
 
 The double-lined edge `MCP Client ==> MCP Server` is the trust boundary. Everything to its

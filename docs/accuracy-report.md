@@ -58,7 +58,13 @@ Findings whose `entities` reference an indicator/host/process absent from the ev
 
 ## 6. Evidence Integrity
 
-Every evidence file in a case manifest is hashed (SHA256) at registration and re-verified after the run via `evidence_verify_integrity`. The bundled sample file `cases/sample/dns.cap` has SHA256 `041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28`; the latest run reports `evidence_integrity` 1.0 (passed) with no changed or missing files. Evidence is read with byte-level readers (or read-only allowlisted binaries) and is never opened for writing.
+How does the architecture prevent original data from being modified? Evidence under `cases/` is never opened for writing: the typed MCP server exposes no write-to-evidence or shell tool, `ensure_write_path` rejects any write resolving under the evidence root, and the PCAP path uses byte-level read-only readers. Every evidence file in a case manifest is hashed (SHA256) at registration and re-verified after the run via `evidence_verify_integrity`. The bundled sample file `cases/sample/dns.cap` has SHA256 `041eeb6f98bb398f1ee8b09651b5b5a84f6a62639f95bf226f9e7b77355d9f28`; the latest run reports `evidence_integrity` 1.0 (passed) with no changed or missing files.
+
+Did you test for spoliation? Yes. We attempt to mutate evidence three ways and confirm each is blocked, then confirm the before/after evidence hashes are identical:
+
+1. `GuardrailConfig.ensure_write_path('cases/sample/x')` raises `GuardrailError` (asserted in `tests/test_guardrails.py::test_blocks_writes_to_cases`).
+2. A `Write`/`Bash` aimed at `cases/` is blocked by the `PreToolUse` Claude Code hooks (exit 2), which also fail closed when `jq` is unavailable.
+3. The post-run `evidence_verify_integrity` reports `changed_files: []`, `missing_files: []`, status `passed` — the SHA256 above is unchanged across the run. No spoliation path was found.
 
 ## 7. Guardrail Testing
 
@@ -71,7 +77,16 @@ Architectural guardrails (enforced in code, not by prompt):
 
 Prompt guardrails (advisory) are secondary: if the model ignores them, the architectural layer still rejects the write/command and the validation engine still rejects the unsupported finding.
 
-## 8. Limitations
+## 8. Failure Modes Observed
+
+Documented as signal, not hidden:
+
+- With `tshark` absent, `pcap_http_objects`/`pcap_follow_stream` cannot reconstruct HTTP objects or streams; they degrade to `needs_review` and the gap is recorded as a run limitation rather than being papered over with a confirmed finding.
+- The deterministic reference orchestrator emits zero token usage (no LLM in the loop). This is correct, but means the token-usage execution-log requirement is only exercised in the Claude Code headless mode.
+- Disk/Windows/memory wrappers are implemented but not validated against known-answer cases in this repository (no large evidence vendored), so their depth is unproven here.
+- `windows_prefetch_summary` enumerates filenames only; it deliberately does NOT assert run counts or last-run timestamps, so a naive consumer could under-read execution evidence.
+
+## 9. Limitations
 
 - EvilTrace is a triage/decision-support and research agent, not a court-ready evidentiary system; its machine-authored report requires human validation (consistent with the SANS Protocol SIFT research-stage framing: not validated for forensic soundness or evidentiary reliability).
 - The demonstrated depth is the network-first PCAP path. Disk timeline/search tools invoke Sleuth Kit (`fls`/`mactime`) when a disk image and the binaries are present and otherwise degrade to `needs_review`; Windows/memory wrappers degrade to `needs_review` until validated local evidence and SIFT binaries are present. These are implemented but not validated against known answers in this repo.

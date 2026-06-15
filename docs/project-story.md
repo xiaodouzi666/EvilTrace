@@ -8,7 +8,7 @@ EvilTrace is decision-support and triage: it generates and validates hypotheses 
 
 ## How we built it
 
-EvilTrace has two execution modes that share one typed MCP evidence layer, one validation/reporting layer, and one append-only JSONL audit log:
+EvilTrace implements the FIND EVIL "Custom MCP Server" approach (the one the hackathon calls the most sound architecture): forensic capability is exposed as typed function wrappers, never an execute_shell tool, so destructive actions are architecturally impossible. It has two execution modes that share one typed MCP evidence layer, one validation/reporting layer, and one append-only JSONL audit log:
 
 1. A deterministic reference orchestrator (`eviltrace run`) that plans, executes typed tools, validates, and self-corrects with no LLM inference in the loop. It is fully reproducible and runs the bundled sample in seconds.
 2. Claude Code headless driving the same MCP server (`.claude/mcp.json` + `prompts/`), where per-turn token usage is captured into the same logs.
