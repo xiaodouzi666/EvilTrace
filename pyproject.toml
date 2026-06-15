@@ -7,21 +7,23 @@ name = "eviltrace"
 version = "0.1.0"
 description = "Self-correcting, evidence-grounded DFIR agent for Protocol SIFT."
 readme = "README.md"
-requires-python = ">=3.11"
+# Python 3.10 is the floor so `pip install -e .` works on the SANS SIFT Workstation
+# (Ubuntu 22.04 ships Python 3.10). EvilTrace's own code is 3.9-safe; the 3.10 floor comes
+# from the `mcp` SDK. The reference orchestrator (`eviltrace run`) imports `mcp` only lazily.
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
   { name = "EvilTrace Contributors" }
 ]
 dependencies = [
   "typer>=0.12",
-  "mcp>=1.0",
-  "networkx>=3.2",
-  "jsonschema>=4.22"
+  "mcp>=1.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.0"
+  "pytest>=8.0",
+  "jsonschema>=4.22"
 ]
 
 [project.scripts]

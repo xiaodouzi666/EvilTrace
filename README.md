@@ -71,6 +71,26 @@ sample outputs. When you place additional PCAP or disk evidence under `cases/`, 
 the typed-tool path against it and records any missing SIFT binary as a limitation instead of
 confirming unsupported findings.
 
+### On the SANS SIFT Workstation
+
+EvilTrace targets the SIFT Workstation (Ubuntu 22.04, system Python 3.10). `uv` is not
+preinstalled on SIFT, so use the pip path; `tshark`, `sleuthkit` (`mmls`/`fls`/`mactime`), `jq`,
+and Volatility 3 (`vol`) are already native, so the typed tools run against the real SIFT
+binaries there.
+
+```bash
+# inside the SIFT Workstation (Ubuntu 22.04)
+git clone <repo-url> eviltrace && cd eviltrace
+python3 -m venv .venv && . .venv/bin/activate
+pip install -e .[dev]
+eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
+```
+
+The package requires Python ≥ 3.10 (the floor comes from the `mcp` SDK; EvilTrace's own code is
+3.9-safe). To get SIFT onto a fresh/headless Ubuntu 22.04 host without the 8.8 GB OVA, install
+the `cast` binary and run `sudo cast install --mode=server teamdfir/sift-saltstack` (CLI-only,
+no desktop); see `scripts/setup_sift.sh`.
+
 ## 5. Demo
 
 ```bash

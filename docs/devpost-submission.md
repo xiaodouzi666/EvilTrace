@@ -13,7 +13,7 @@ A self-correcting, evidence-grounded DFIR agent for Protocol SIFT.
 
 ## Built with
 
-python, claude-code, mcp, tshark, sleuthkit, networkx, typer
+python, claude-code, mcp, tshark, sleuthkit, volatility3, typer
 
 ## Links
 

@@ -51,7 +51,23 @@ uv run eviltrace benchmark \
 This computes a real `artifact_recall` (1.0) by intersecting recovered DNS names with the
 independently enumerated ground-truth names in `data/ground_truth/sample.expected.json`.
 
-## Option C: your own / larger cases (requires local evidence)
+## Option C: SANS SIFT Workstation
+
+EvilTrace targets the SIFT Workstation (Ubuntu 22.04, system Python 3.10). `uv` is not
+preinstalled there, so use pip; `tshark`, `sleuthkit`, `jq`, and Volatility 3 (`vol`) are native,
+so the typed tools run against the real SIFT binaries.
+
+```bash
+git clone <repo-url> eviltrace && cd eviltrace
+python3 -m venv .venv && . .venv/bin/activate
+pip install -e .[dev]
+eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
+```
+
+To provision SIFT on a fresh/headless Ubuntu 22.04 without the OVA:
+`sudo cast install --mode=server teamdfir/sift-saltstack` (see `scripts/setup_sift.sh`).
+
+## Option D: your own / larger cases (requires local evidence)
 
 The Nitroba and NIST cases are **not vendored**. Place evidence locally and run, e.g.:
 

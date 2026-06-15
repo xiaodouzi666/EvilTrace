@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import shutil
+
 from .common import ToolContext, structured_tool_event, workspace_path
 
 
@@ -33,12 +35,15 @@ def memory_volatility_plugin(ctx: ToolContext, *, memory_path: str, plugin: str,
             output={"rows": [], "reason": "Memory image does not exist"},
             status="needs_review",
         )
-    command = ["volatility3", "-f", str(resolved), plugin]
+    # On the SANS SIFT Workstation, Volatility 3 is exposed as the `vol` binary (the
+    # `volatility3` name is not on PATH), so prefer `vol` and fall back to `volatility3`.
+    binary = "vol" if shutil.which("vol") else "volatility3"
+    command = [binary, "-f", str(resolved), plugin]
     for key, value in (args or {}).items():
         command.extend([f"--{key}", str(value)])
     result = ctx.runner.run(command, mcp_tool="memory_volatility_plugin", input_data={"memory_path": memory_path, "plugin": plugin}, iteration=ctx.iteration)
     output = {"audit_id": result.audit_id, "status": result.status, "plugin": plugin, "rows": [], "raw_output_path": result.raw_output_path}
     if result.status == "tool_missing":
-        output["fallback_reason"] = "volatility3 is not installed; memory analysis is unavailable on this host."
+        output["fallback_reason"] = "Volatility 3 (vol/volatility3) is not installed; memory analysis is unavailable on this host."
     return output
 
