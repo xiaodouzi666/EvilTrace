@@ -1,6 +1,6 @@
 # EvilTrace
 
-![thumbnail](<ChatGPT Image Jun 16, 2026, 03_41_56 AM.png>)
+![thumbnail](thumbnail.png)
 
 Self-correcting, evidence-grounded DFIR agent for Protocol SIFT.
 
