@@ -1,81 +1,150 @@
-# Demo Script (< 5 minutes, live terminal + audio narration)
+# Demo Script — recorded live on the SANS SIFT Workstation (< 5 min)
 
-Record a screencast of the actual terminal (not slides) against the bundled real capture
-`cases/sample/dns.cap`. Every command below works as-is in the repository.
+This is the exact screencast script. It was recorded inside the real SANS SIFT Workstation
+(Ubuntu 24.04, Python 3.12), where EvilTrace runs against SIFT's native tools (real `tshark`,
+`vol`, `mmls`, `fls`, `jq`). Every command below is a **single line** — type it on one line (do
+not let `--max-iterations 3` wrap onto a new line) so the terminal output matches this script.
 
-## 0:00-0:20 Opening
+## Setup (before recording)
 
-Show README and terminal.
-
-Narration: EvilTrace is a self-correcting DFIR agent for Protocol SIFT. Reasoning is treated as
-untrusted; all evidence access crosses a trust boundary into a typed MCP server with read-only
-guardrails and audit logging. There is no shell-exec tool, so the agent cannot run destructive
-commands.
-
-## 0:20-0:50 Architecture and trust boundary
+If the SIFT Workstation is a headless VM, SSH into it and activate the environment:
 
 ```bash
-sed -n '1,40p' docs/architecture.md
+ssh -p 2222 sansforensics@127.0.0.1      # SIFT default password: forensics
+cd ~/eviltrace && source .venv/bin/activate
 ```
 
-Highlight the TRUST BOUNDARY edge between the untrusted reasoning zone and the trusted
-read-only evidence zone, and the architectural-vs-prompt guardrail split.
+The prompt becomes `sansforensics@siftworkstation` — proof you are on the real SIFT box. Rehearse
+the whole flow once with `bash ~/demo.sh`.
 
-## 0:50-1:40 Live run on real evidence
+---
+
+## 0:00–0:10 Opening
+
+> EvilTrace is a self-correcting, evidence-grounded DFIR agent for Protocol SIFT, running live on
+> the SANS SIFT Workstation.
+
+## 0:10–0:30 STEP 1 — this is the real SIFT Workstation
 
 ```bash
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
+hostname; grep PRETTY_NAME /etc/os-release; for b in tshark vol mmls fls jq; do printf "  %-8s " "$b"; command -v "$b"; done
 ```
 
-Narration: The agent registers the case, hashes `dns.cap`, plans a network-first
-investigation, and parses the real PCAP (tshark if present, otherwise a read-only built-in
-parser recorded in provenance).
+Output: `siftworkstation`, `Ubuntu 24.04.4 LTS`, and real paths for tshark/vol/mmls/fls/jq.
 
-## 1:40-2:30 First-pass candidates (iteration 1)
+> We're on the real SIFT Workstation. EvilTrace uses SIFT's native forensic tools through a typed
+> MCP layer.
+
+## 0:30–0:50 STEP 2 — architecture / trust boundary
 
 ```bash
-jq 'select(.iteration==1 and (.event_type=="finding_proposed" or .event_type=="finding_validated"))' artifacts/logs/sample.agent.jsonl
+grep -nE "Custom MCP Server|TRUST BOUNDARY|execute_shell" docs/architecture.md | head -3
 ```
 
-Narration: Iteration 1 runs only a protocol summary. From it the agent proposes two
-over-confident candidates: an "exfiltration" claim, and a DNS-activity claim asserted as
-`confirmed` from a single summary artifact.
+Output includes: `TRUST BOUNDARY: typed tools only, no execute_shell`.
 
-## 2:30-3:30 Self-correction across iterations
+> The design choice that matters: there is no execute_shell tool. The agent physically cannot run
+> destructive commands — evidence access crosses a typed MCP trust boundary.
+
+## 0:50–1:20 STEP 3 — one command, live investigation (type on ONE line)
 
 ```bash
-jq 'select(.event_type=="self_correction_triggered") | {iteration, action: .output_summary.action, finding: .input.finding_id}' artifacts/logs/sample.agent.jsonl
-jq 'select(.event_type=="plan_created") | {iteration, steps: [.output_summary.tool_steps[].tool]}' artifacts/logs/sample.agent.jsonl
+time eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
 ```
 
-Narration: The validator **rejects** the exfiltration claim (no stream/object/endpoint
-evidence), and **downgrades** the single-source DNS claim from `confirmed` to `inferred`. That
-downgrade triggers a **targeted re-plan**: iteration 2 extracts the actual DNS queries. With two
-corroborating artifacts the same finding (`finding-0002`) is **upgraded back to `confirmed`** —
-demonstrable improvement between the first and final iteration on the same evidence, with full
-traces preserved. The rejected claim never enters the final report.
+Output: JSON with `"final_findings": 1, "rejected_findings": 1, "iterations": 2,
+"stop_reason": "validation_passed"`, then `real 0m0.5s`.
 
-## 3:20-4:05 Provenance drill-down
+> One command registers the case, hashes the evidence, and runs a bounded self-correcting
+> investigation against the PCAP — in about half a second. Threats strike in minutes; this
+> responds in seconds.
+
+## 1:20–2:20 STEP 4 — self-correction across iterations (the key beat)
 
 ```bash
-jq '.findings[0].artifacts' artifacts/reports/sample.findings.json
-head -n 3 artifacts/raw/provenance/sample.provenance.jsonl
+jq -c 'select(.event_type|test("self_correction_triggered|finding_rejected|finding_inferred|finding_confirmed")) | {it:.iteration, event:.event_type, action:.output_summary.action}' artifacts/logs/sample.agent.jsonl
 ```
 
-Narration: Every final finding traces to an `audit_id`, an MCP tool, the source path and SHA256,
-and a provenance record with the command, exit code, and output hashes.
+Output:
 
-## 4:05-4:40 Accuracy and required docs
+```
+{"it":1,"event":"self_correction_triggered","action":"reject_finding"}
+{"it":1,"event":"finding_rejected","action":null}
+{"it":1,"event":"self_correction_triggered","action":"downgrade_to_inferred"}
+{"it":1,"event":"finding_inferred","action":null}
+{"it":2,"event":"finding_confirmed","action":null}
+```
+
+> Here's the self-correction. Iteration one: it rejects an over-confident exfiltration claim that
+> has no supporting evidence, and downgrades a single-source DNS finding from confirmed to
+> inferred. That downgrade triggers a targeted re-plan. Iteration two extracts the actual DNS
+> queries, and the same finding is upgraded back to confirmed — demonstrable improvement between
+> the first and final iteration, with the full trace preserved.
+
+## 2:20–3:10 STEP 5 — provenance: finding → real tshark → evidence hash
 
 ```bash
-uv run eviltrace benchmark --findings artifacts/reports/sample.findings.json --expected data/ground_truth/sample.expected.json --manifest artifacts/reports/sample.case.json
-bash scripts/validate_submission.sh
+jq '.findings[0].artifacts[] | {artifact_id, mcp_tool, audit_id, source_sha256}' artifacts/reports/sample.findings.json
 ```
 
-Narration: Artifact recall against the ground-truth DNS set is 1.0, hallucination rate is 0,
-evidence integrity passed, and all eight required submission components are present.
+```bash
+jq -c '{mcp_tool, underlying_tool, command_redacted}' artifacts/raw/provenance/sample.provenance.jsonl
+```
 
-## 4:40-5:00 Closing
+Output: the provenance records show `"underlying_tool":"tshark"` and the exact command, e.g.
+`tshark -r .../dns.cap -Y dns.flags.response == 0 -T fields -e frame.time_epoch -e ip.src -e dns.qry.name`.
 
-EvilTrace optimizes correctness over overclaiming: unsupported claims are rejected, the full
-trace is preserved, and the report is decision-support for a human investigator.
+> Every finding traces to an audit ID, the source file's SHA-256, and a provenance record with the
+> exact tshark command that produced it. A judge can follow any finding back to the real tool
+> execution.
+
+## 3:10–3:40 STEP 6 — accuracy vs known-answer ground truth
+
+```bash
+eviltrace benchmark --findings artifacts/reports/sample.findings.json --expected data/ground_truth/sample.expected.json --manifest artifacts/reports/sample.case.json
+```
+
+Output: `artifact_recall 1.0, hallucination_rate 0.0, finding_precision 1.0, evidence_integrity 1.0`.
+
+> Against a known-answer DNS set, artifact recall is one-point-zero and the hallucination rate in
+> final findings is zero.
+
+## 3:40–4:05 STEP 7 — evidence is architecturally read-only
+
+```bash
+python - <<'EOF'
+from eviltrace.evidence.paths import WorkspacePaths
+from eviltrace.mcp_server.guardrails import GuardrailConfig, GuardrailError
+g = GuardrailConfig(WorkspacePaths.from_workspace("."))
+try:
+    g.ensure_write_path("cases/sample/tampered.txt"); print("not blocked")
+except GuardrailError as e:
+    print("BLOCKED:", e)
+EOF
+```
+
+Output: `BLOCKED: Evidence path is read-only: cases/sample/tampered.txt`.
+
+> Evidence is architecturally read-only — any attempt to write into the case directory is
+> rejected. Zero spoliation risk.
+
+## 4:05–4:40 STEP 8 + closing — all required components
+
+```bash
+eviltrace submission-check
+```
+
+Output: a column of `PASS:` lines covering all eight required submission components.
+
+> All required submission components are present, and everything you just saw is reproducible on
+> the SIFT Workstation. EvilTrace optimizes correctness over overclaiming — that's the defender we
+> need at machine speed.
+
+---
+
+## Recording tips
+
+- Check the mic; speak slowly; pause on STEP 4 (the self-correction is the highest-weighted beat).
+- Run STEP 3 → 8 strictly in order: STEP 3 regenerates the artifacts that STEP 4–8 read.
+- Keep each command on one physical line so nothing wraps into a stray "command not found".
+- To trim under 5 minutes, shorten STEP 2 and STEP 8 to ~10 seconds each.
