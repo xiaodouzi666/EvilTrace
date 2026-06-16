@@ -1,5 +1,7 @@
 # EvilTrace
 
+![thumbnail](<ChatGPT Image Jun 16, 2026, 03_41_56 AM.png>)
+
 Self-correcting, evidence-grounded DFIR agent for Protocol SIFT.
 
 EvilTrace routes all forensic evidence access through a **typed MCP server** behind a hard
@@ -22,6 +24,8 @@ Final outputs per case:
 - `artifacts/raw/provenance/<case>.provenance.jsonl` — per-tool provenance records
 - `artifacts/reports/<case>.report.md` / `.findings.json` / `.validation.json` / `.run.json`
 - `artifacts/graphs/<case>.graph.json` — evidence graph with the full provenance chain
+
+![architecture](architecture.png)
 
 ## 2. Competition Compliance Map
 
