@@ -12,8 +12,8 @@
 | Agent Execution Logs | `artifacts/logs/sample.agent.jsonl`, `artifacts/raw/provenance/sample.provenance.jsonl` | Complete |
 
 The only outstanding item is the public demo-video URL, which cannot be produced from inside
-the repository — record per `docs/demo-script.md`, upload publicly, and paste the URL into
-`docs/demo-video.md`, `README.md`, and the Devpost form.
+the repository — record the walkthrough in `README.md` section 5, upload publicly, and paste the
+URL into `docs/demo-video.md`, `README.md`, and the Devpost form.
 
 ## Judging Criteria Mapping
 

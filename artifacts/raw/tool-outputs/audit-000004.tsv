@@ -1,0 +1,25 @@
+$ tshark -r /home/xiaodouzi/workspace/findevil/cases/sample/dns.cap -Y dns.flags.response == 0 -T fields -e frame.time_epoch -e ip.src -e dns.qry.name
+
+[stdout]
+1112172466.496046000	192.168.170.8	google.com
+1112172470.501268000	192.168.170.8	google.com
+1112172479.313231000	192.168.170.8	google.com
+1112172487.320873000	192.168.170.8	104.9.192.66.in-addr.arpa
+1112172558.685951000	192.168.170.8	www.netbsd.org
+1112172575.461181000	192.168.170.8	www.netbsd.org
+1112172635.523440000	192.168.170.8	www.netbsd.org
+1112172644.735890000	192.168.170.8	www.google.com
+1112172654.349862000	192.168.170.8	www.l.google.com
+1112172695.204348000	192.168.170.8	www.example.com
+1112172706.819984000	192.168.170.8	www.example.notginh
+1112172737.660780000	192.168.170.8	www.isc.org
+1112172737.737204000	192.168.170.8	1.0.0.127.in-addr.arpa
+1112172737.740166000	192.168.170.8	isc.org
+1112172737.755930000	192.168.170.56	_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.utelsystems.local
+1112172737.776396000	192.168.170.56	_ldap._tcp.dc._msdcs.utelsystems.local
+1112172737.794240000	192.168.170.56	_ldap._tcp.05b5292b-34b8-4fb7-85a3-8beef5fd2069.domains._msdcs.utelsystems.local
+1112172737.915705000	192.168.170.56	GRIMM.utelsystems.local
+1112172745.357346000	192.168.170.56	GRIMM.utelsystems.local
+
+
+[stderr]

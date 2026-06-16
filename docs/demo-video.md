@@ -10,9 +10,10 @@ Constraints (from the FIND EVIL rules): under 5 minutes, a screencast of **live 
 execution** with **audio narration** (not slides, not a marketing video), showing the agent
 working against real evidence including **at least one self-correction sequence**.
 
-Follow `docs/demo-script.md`. Required moments to show:
+Follow the reproduce walkthrough in `README.md` section 5 ("Demo / Reproduce the Walkthrough").
+Required moments to show:
 
-- live terminal execution of `uv run eviltrace run --case-id sample --case-root ./cases/sample ...`
+- live terminal execution of `eviltrace run --case-id sample --case-root ./cases/sample ...`
 - real case data (`cases/sample/dns.cap`, a public Wireshark capture)
 - a self-correction event in `artifacts/logs/sample.agent.jsonl`
   (`jq 'select(.event_type=="self_correction_triggered")'`)

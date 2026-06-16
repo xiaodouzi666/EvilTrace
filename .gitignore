@@ -10,10 +10,21 @@ build/
 .env
 artifacts/raw/tool-outputs/*
 !artifacts/raw/tool-outputs/.gitkeep
-!artifacts/raw/tool-outputs/audit-*.json
+!artifacts/raw/tool-outputs/audit-*
 cases/*
 !cases/.gitkeep
 !cases/sample/
 !cases/sample/dns.cap
 
 *.deb
+
+*.ova
+
+# internal planning / our own helper material — not part of the public submission
+plan.md
+/docs/demo-script.md
+/docs/devpost-submission.md
+/scripts/record_demo_notes.sh
+# dev-session Claude Code hook logs (NOT the agent execution-log deliverable)
+/artifacts/logs/claude-bash-audit.jsonl
+/artifacts/logs/claude-post-tool.jsonl

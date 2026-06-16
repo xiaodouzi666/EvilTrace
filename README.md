@@ -91,15 +91,37 @@ The package requires Python ≥ 3.10 (the floor comes from the `mcp` SDK; EvilTr
 the `cast` binary and run `sudo cast install --mode=server teamdfir/sift-saltstack` (CLI-only,
 no desktop); see `scripts/setup_sift.sh`.
 
-## 5. Demo
+## 5. Demo / Reproduce the Walkthrough
+
+This is also the demo-video walkthrough. After install (section 4) with the project venv active,
+run the commands below in order (on the SIFT Workstation they use the native tshark / Sleuth Kit /
+Volatility; prefix with `uv run ` if you used `uv` and did not activate the venv):
 
 ```bash
-uv run eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
-jq 'select(.event_type=="self_correction_triggered")' artifacts/logs/sample.agent.jsonl
-jq '.findings[0].artifacts' artifacts/reports/sample.findings.json
-uv run eviltrace benchmark --findings artifacts/reports/sample.findings.json \
-  --expected data/ground_truth/sample.expected.json --manifest artifacts/reports/sample.case.json
+# 1) one self-correcting investigation against the bundled PCAP (~0.5s, two iterations)
+eviltrace run --case-id sample --case-root ./cases/sample --profile network-first --max-iterations 3
+
+# 2) the self-correction across iterations: reject + downgrade -> targeted re-plan -> upgrade
+jq -c 'select(.event_type|test("self_correction_triggered|finding_rejected|finding_inferred|finding_confirmed")) | {it:.iteration, event:.event_type, action:.output_summary.action}' artifacts/logs/sample.agent.jsonl
+
+# 3) provenance: every finding -> audit_id -> the exact tool command -> evidence SHA256
+jq '.findings[0].artifacts[] | {artifact_id, mcp_tool, audit_id, source_sha256}' artifacts/reports/sample.findings.json
+jq -c '{mcp_tool, underlying_tool, command_redacted}' artifacts/raw/provenance/sample.provenance.jsonl
+
+# 4) accuracy vs known-answer ground truth (recall 1.0, hallucination 0.0, integrity passed)
+eviltrace benchmark --findings artifacts/reports/sample.findings.json --expected data/ground_truth/sample.expected.json --manifest artifacts/reports/sample.case.json
+
+# 5) evidence is architecturally read-only (this guardrail test is asserted in tests/test_guardrails.py)
+python -m pytest tests/test_guardrails.py -q
+
+# 6) all eight required submission components are present
+eviltrace submission-check
 ```
+
+Expected: step 1 prints `iterations: 2, stop_reason: validation_passed, final_findings: 1,
+rejected_findings: 1`; step 2 shows `finding-0001` rejected and `finding-0002` going
+inferred (iteration 1) → confirmed (iteration 2); step 3's provenance shows `underlying_tool:
+tshark` with the real command; step 4 shows `artifact_recall 1.0` and `hallucination_rate 0.0`.
 
 ## 6. Two Execution Modes (one shared core)
 

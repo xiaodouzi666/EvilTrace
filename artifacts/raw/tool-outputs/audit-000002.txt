@@ -1,0 +1,24 @@
+$ tshark -r /home/xiaodouzi/workspace/findevil/cases/sample/dns.cap -q -z io,phs -z conv,ip
+
+[stdout]
+================================================================================
+IPv4 Conversations
+Filter:<No Filter>
+                                               |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |
+                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |
+192.168.170.8        <-> 192.168.170.20            14 1,599 bytes      14 1,041 bytes      28 2,640 bytes     0.000000000       271.2624
+192.168.170.56       <-> 217.13.4.24                5 533 bytes       5 533 bytes      10 1,066 bytes   271.259884000         7.6194
+================================================================================
+
+===================================================================
+Protocol Hierarchy Statistics
+Filter: 
+
+eth                                      frames:38 bytes:3706
+  ip                                     frames:38 bytes:3706
+    udp                                  frames:38 bytes:3706
+      dns                                frames:38 bytes:3706
+===================================================================
+
+
+[stderr]
