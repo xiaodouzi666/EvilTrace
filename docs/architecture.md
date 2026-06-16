@@ -82,6 +82,13 @@ log:
 2. **Claude Code headless** — Claude drives the same MCP server (`.claude/mcp.json`,
    `prompts/`); per-turn token usage is captured into the same logs.
 
+In the diagram, the `MCP Client → MCP Server` RPC edge depicts the Claude Code driver
+(`eviltrace-mcp` exposes the typed tools over FastMCP). The deterministic `eviltrace run`
+invokes the **same** typed tool functions in-process (`orchestrator._execute_plan` →
+`func(ctx, ...)`) rather than over a socket. Either way the agent only ever calls typed tools —
+there is no `execute_shell` — so the trust boundary and every guardrail hold identically in both
+modes.
+
 ## Architectural Guardrails (enforced in code)
 
 - Typed MCP functions expose case, evidence, PCAP, disk, Windows, memory, graph, finding, and
